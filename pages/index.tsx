@@ -5,7 +5,7 @@ export default function Home() {
 		<div className="mx-auto max-w-4xl">
 			<h3 className="mb-2 text-3xl">Masonry Design with TailwindCss</h3>
 
-			<div className="px-0 md:px-20 masonry-1-col md:masonry-2-col lg:px-0 lg:masonry-3-col">
+			<div className="lg:px-0 masonry-gap-4 lg:masonry-col-4">
 				<div className="break-inside border p-3 mb-3 bg-green-600 text-white">
 					<h2 className="text-2xl pb-2">First grid item</h2>
 					<p>
