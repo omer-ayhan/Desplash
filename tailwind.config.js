@@ -2,7 +2,6 @@ const plugin = require("tailwindcss/plugin");
 
 /** @type {import('tailwindcss').Config} */
 module.exports = {
-	mode: "jit",
 	content: [
 		"./pages/**/*.{js,ts,jsx,tsx}",
 		"./components/**/*.{js,ts,jsx,tsx}",
@@ -85,7 +84,18 @@ module.exports = {
 
 			addUtilities({
 				".transition-default": {
-					transition: "all 300ms ease-in-out",
+					transition: "all 250ms ease-in-out",
+				},
+
+				".scrollbar-hide": {
+					"scrollbar-width": "none",
+					"&::-webkit-scrollbar": {
+						display: "none",
+					},
+				},
+
+				".vignette": {
+					"box-shadow": "0 0 200px rgba(0,0,0,0.7) inset",
 				},
 			});
 		}),

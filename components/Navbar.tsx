@@ -6,8 +6,8 @@ const cats = Array.from({ length: 15 }, (_, i) => i + 1);
 
 export function Navbar() {
 	return (
-		<nav className="w-screen bg-white flex flex-col  fixed top-0">
-			<div className="p-3 flex gap-5 items-center">
+		<nav className="w-screen bg-white flex flex-col fixed top-0 z-50">
+			<div className="p-3 px-5 flex gap-5 items-center">
 				<Link href="/" className="text-xl font-bold">
 					Desplash
 				</Link>
@@ -40,7 +40,7 @@ export function Navbar() {
 					</li>
 				</ul>
 			</div>
-			<ul className="p-3 flex gap-5 items-center">
+			<ul className="relative p-3 flex gap-5 items-center overflow-y-hidden overflow-x-scroll scrollbar-hide">
 				{cats.map((cat) => (
 					<li key={cat}>
 						<Link

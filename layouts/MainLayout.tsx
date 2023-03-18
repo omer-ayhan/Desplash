@@ -10,8 +10,8 @@ export function MainLayout({
 	return (
 		<>
 			<Navbar />
-			<div className="pt-20">{children}</div>
-			<Footer />
+			<div>{children}</div>
+			{/* <Footer /> */}
 		</>
 	);
 }
