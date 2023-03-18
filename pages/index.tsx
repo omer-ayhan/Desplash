@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import {
@@ -6,44 +6,83 @@ import {
 	AiOutlineArrowDown,
 	AiOutlineSearch,
 } from "react-icons/ai";
-import axios from "axios";
-import { useInfiniteQuery } from "react-query";
+import axios, { AxiosError } from "axios";
+import { useInfiniteQuery, useQuery } from "react-query";
 
 import { PhotoType } from "@/types/photos";
 
 import { getEndpoint } from "@/services/local";
 import { Input } from "@/components/Forms";
+import { useInView } from "react-intersection-observer";
+import { Button } from "@/components/Button";
 
-export default function Home({}: { photos: PhotoType[] }) {
+export default function Home({ randomPhoto }: { randomPhoto: PhotoType }) {
+	const [latestId, setLatestId] = React.useState<string[]>([]);
+	const { ref, inView } = useInView();
+
 	const {
-		data: photos,
-		isLoading,
 		status,
+		data: photos,
+		error,
+		isFetchingNextPage,
 		fetchNextPage,
-		hasNextPage,
-	} = useInfiniteQuery<PhotoType[]>(
-		"infiniteCharacters",
-		async ({ pageParam = 10 }) => {
-			const { data } = await axios(
-				getEndpoint(`/photos?per_page=${pageParam}`),
-				{
-					headers: {
-						Authorization: `Client-ID wtOtTo8_YfuQm3qH39jhkriCbFgsBSoW-ct-zuL_eow`,
-					},
-				}
-			);
-			return data;
+	} = useInfiniteQuery<
+		{
+			data: PhotoType[];
+			nextId: number | null;
+			prevId: number | null;
+		},
+		AxiosError
+	>(
+		["photos"],
+		async ({ pageParam = 1, signal }) => {
+			if (!pageParam) {
+				return {
+					data: [],
+					nextId: null,
+					prevId: null,
+				};
+			}
+			const { data: photoRes } = await axios.get<{
+				data: PhotoType[];
+				nextId: number | null;
+				prevId: number | null;
+			}>(`/api/photos?per_page=12&page=${pageParam}`, {
+				signal,
+			});
+
+			return {
+				...photoRes,
+				data: photoRes.data.filter((p) => !latestId.includes(p.id)),
+			};
+		},
+		{
+			getNextPageParam: (lastPage) => lastPage.nextId,
+			refetchOnWindowFocus: false,
+			refetchOnMount: false,
+			refetchOnReconnect: false,
+			retry: false,
+			retryOnMount: false,
+			onSuccess: (data) => {
+				setLatestId(data.pages.flatMap((page) => page.data).map((p) => p.id));
+			},
 		}
 	);
 
+	useEffect(() => {
+		if (inView) {
+			fetchNextPage();
+		}
+	}, [inView]);
+
 	return (
-		<div className="h-screen">
-			<section className="relative grid gap-5 place-content-center  w-screen h-3/4 bg-blend-darken overflow-hidden">
+		<div>
+			<section className="relative grid gap-5 place-content-center  w-screen h-[700px] bg-blend-darken overflow-hidden">
 				<Image
-					src="https://source.unsplash.com/random/1920x1080"
+					src={randomPhoto.urls.full}
 					fill
-					className="-z-50 object-cover "
-					alt="Hero Image"
+					className="-z-50 object-cover"
+					alt={randomPhoto.alt_description}
 				/>
 				<div className="-z-40 absolute w-full h-full bg-primary-main/30" />
 
@@ -51,8 +90,7 @@ export default function Home({}: { photos: PhotoType[] }) {
 					Desplash
 				</h1>
 				<p className="mx-auto max-w-md text-center text-white text-lg">
-					Lorem ipsum dolor sit amet, consectetur adipisicing elit. Et porro
-					tenetur aliquid suscipit itaque ut, quos cumque sed alias officiis.
+					The internet’s source for visuals. Powered by creators everywhere.
 				</p>
 
 				<Input
@@ -68,72 +106,101 @@ export default function Home({}: { photos: PhotoType[] }) {
 					<Link
 						href="/"
 						className="text-white/90 hover:text-white transition-default">
-						Tino Rischawy
+						{randomPhoto.user.name}
 					</Link>
 				</p>
 			</section>
+			<section className="my-10 mx-auto max-w-6xl masonry-col-3 masonry-gap-3 transition-default">
+				{status === "loading" ? (
+					<p>Loading...</p>
+				) : status === "error" ? (
+					<span>Error: {error.message} </span>
+				) : (
+					status === "success" && (
+						<>
+							{photos.pages.map((page) => (
+								<React.Fragment key={`${page.nextId}-?${page.prevId}`}>
+									{page.data.map(
+										({ links, id, urls, alt_description, user }, i) => (
+											<button
+												key={id}
+												className="group relative mb-3 p-0 break-inside-avoid-column"
+												title={alt_description}>
+												<Image
+													key={id}
+													src={urls.regular}
+													width={400}
+													height={500}
+													alt={alt_description || user.name}
+													placeholder="blur"
+													blurDataURL={urls.thumb}
+												/>
+												<div className="group-hover:vignette absolute bottom-0 left-0 w-full h-full transition-default" />
 
-			<section className=" my-10 mx-auto max-w-6xl masonry-col-3 masonry-gap-3">
-				{photos?.pages
-					.flat()
-					.map(({ links, id, urls, alt_description, user }) => (
-						<button
-							key={id}
-							className="group relative mb-3 p-0"
-							title={alt_description}>
-							<Image
-								key={id}
-								src={urls.regular}
-								width={400}
-								height={500}
-								alt={alt_description || user.name}
-								placeholder="blur"
-								blurDataURL={urls.thumb}
-							/>
-							<div className="group-hover:vignette absolute bottom-0 left-0 w-full h-full transition-default" />
-
-							<AiFillHeart
-								className="p-2 w-11 invisible group-hover:visible absolute top-4 right-4 text-primary-secondary bg-white rounded-md hover:text-primary-main"
-								title="Add To Favorites"
-								size={34}
-							/>
-							<a href={links.download} download>
-								<AiOutlineArrowDown
-									className="invisible group-hover:visible p-2 w-11 absolute bottom-4 right-4 text-primary-secondary bg-white rounded-md hover:text-primary-main"
-									size={34}
-								/>
-							</a>
-							<div className="invisible group-hover:visible flex gap-2 items-center  absolute bottom-4 left-4">
-								<Image
-									src={user.profile_image.medium}
-									width={35}
-									height={35}
-									alt={user.name}
-									className="rounded-full"
-								/>
-								<Link
-									href="/"
-									className="text-sm text-white/80 hover:text-white">
-									{user.name}
-								</Link>
-							</div>
-						</button>
-					))}
+												<AiFillHeart
+													className="p-2 w-11 invisible group-hover:visible absolute top-4 right-4 text-primary-secondary bg-white rounded-md hover:text-primary-main"
+													title="Add To Favorites"
+													size={34}
+												/>
+												{!urls.regular.includes("plus.unsplash") && (
+													<a href={links.download} download>
+														<AiOutlineArrowDown
+															className="invisible group-hover:visible p-2 w-11 absolute bottom-4 right-4 text-primary-secondary bg-white rounded-md hover:text-primary-main"
+															size={34}
+														/>
+													</a>
+												)}
+												<div className="invisible group-hover:visible flex gap-2 items-center  absolute bottom-4 left-4">
+													<Image
+														src={user.profile_image.medium}
+														width={35}
+														height={35}
+														alt={user.name}
+														className="rounded-full"
+													/>
+													<Link
+														href="/"
+														className="text-sm text-white/80 hover:text-white">
+														{user.name}
+													</Link>
+												</div>
+											</button>
+										)
+									)}
+								</React.Fragment>
+							))}
+						</>
+					)
+				)}
 			</section>
+			{status === "success" && (
+				<div ref={ref}>
+					<Button
+						className="mx-auto my-5"
+						onClick={() => fetchNextPage()}
+						loading={isFetchingNextPage}>
+						Load More
+					</Button>
+				</div>
+			)}
 		</div>
 	);
 }
 
 export async function getServerSideProps() {
-	const { data: photos } = await axios.get(getEndpoint("/photos"), {
-		headers: {
-			Authorization: `Client-ID ${process.env.UNSPLASH_ACCESS}`,
-		},
-	});
+	const { data: randomPhoto } = await axios.get(
+		// getEndpoint("https://unsplash.com/napi/photos/random"),
+		"https://unsplash.com/napi/photos/random"
+		// {
+		// 	headers: {
+		// 		Authorization: `Client-ID ${process.env.UNSPLASH_ACCESS}`,
+		// 	},
+		// }
+	);
 
 	return {
 		props: {
-			photos,
+			randomPhoto,
 		},
 	};
 }
