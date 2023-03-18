@@ -86,7 +86,9 @@ module.exports = {
 				".transition-default": {
 					transition: "all 250ms ease-in-out",
 				},
-
+				".transition-bezier": {
+					transition: "all 200ms cubic-bezier(0.24, 0.22, 0.015, 1.56) 0s",
+				},
 				".scrollbar-hide": {
 					"scrollbar-width": "none",
 					"&::-webkit-scrollbar": {

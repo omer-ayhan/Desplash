@@ -1,24 +1,28 @@
 import React, { useEffect } from "react";
 import Image from "next/image";
 import Link from "next/link";
-import {
-	AiFillHeart,
-	AiOutlineArrowDown,
-	AiOutlineSearch,
-} from "react-icons/ai";
+import { AiOutlineClose, AiOutlineSearch } from "react-icons/ai";
 import axios, { AxiosError } from "axios";
-import { useInfiniteQuery, useQuery } from "react-query";
+import { useInfiniteQuery } from "react-query";
+import { useInView } from "react-intersection-observer";
+import { Modal } from "react-responsive-modal";
+import { IoMdClose } from "react-icons/io";
 
 import { PhotoType } from "@/types/photos";
 
-import { getEndpoint } from "@/services/local";
 import { Input } from "@/components/Forms";
-import { useInView } from "react-intersection-observer";
 import { Button } from "@/components/Button";
+import { ImageButton } from "@/components/ImageButton";
+import { useDisclosure } from "@/hooks";
+import { PhotoDetail } from "@/components/PhotoDetail";
 
 export default function Home({ randomPhoto }: { randomPhoto: PhotoType }) {
-	const [latestId, setLatestId] = React.useState<string[]>([]);
 	const { ref, inView } = useInView();
+	const { isOpen, close, open } = useDisclosure();
+	const [latestId, setLatestId] = React.useState<string[]>([]);
+	const [currentPhoto, setCurrentPhoto] = React.useState<PhotoType | null>(
+		null
+	);
 
 	const {
 		status,
@@ -58,11 +62,6 @@ export default function Home({ randomPhoto }: { randomPhoto: PhotoType }) {
 		},
 		{
 			getNextPageParam: (lastPage) => lastPage.nextId,
-			refetchOnWindowFocus: false,
-			refetchOnMount: false,
-			refetchOnReconnect: false,
-			retry: false,
-			retryOnMount: false,
 			onSuccess: (data) => {
 				setLatestId(data.pages.flatMap((page) => page.data).map((p) => p.id));
 			},
@@ -120,55 +119,50 @@ export default function Home({ randomPhoto }: { randomPhoto: PhotoType }) {
 						<>
 							{photos.pages.map((page) => (
 								<React.Fragment key={`${page.nextId}-?${page.prevId}`}>
-									{page.data.map(
-										({ links, id, urls, alt_description, user }, i) => (
-											<button
-												key={id}
-												className="group relative mb-3 p-0 break-inside-avoid-column"
-												title={alt_description}>
-												<Image
-													key={id}
-													src={urls.regular}
-													width={400}
-													height={500}
-													alt={alt_description || user.name}
-													placeholder="blur"
-													blurDataURL={urls.thumb}
-												/>
-												<div className="group-hover:vignette absolute bottom-0 left-0 w-full h-full transition-default" />
-
-												<AiFillHeart
-													className="p-2 w-11 invisible group-hover:visible absolute top-4 right-4 text-primary-secondary bg-white rounded-md hover:text-primary-main"
-													title="Add To Favorites"
-													size={34}
-												/>
-												{!urls.regular.includes("plus.unsplash") && (
-													<a href={links.download} download>
-														<AiOutlineArrowDown
-															className="invisible group-hover:visible p-2 w-11 absolute bottom-4 right-4 text-primary-secondary bg-white rounded-md hover:text-primary-main"
-															size={34}
-														/>
-													</a>
-												)}
-												<div className="invisible group-hover:visible flex gap-2 items-center  absolute bottom-4 left-4">
-													<Image
-														src={user.profile_image.medium}
-														width={35}
-														height={35}
-														alt={user.name}
-														className="rounded-full"
-													/>
-													<Link
-														href="/"
-														className="text-sm text-white/80 hover:text-white">
-														{user.name}
-													</Link>
-												</div>
-											</button>
-										)
-									)}
+									{page.data.map((data) => (
+										<ImageButton
+											key={data.id}
+											data={data}
+											onClick={() => {
+												setCurrentPhoto(data);
+												open();
+											}}
+										/>
+									))}
 								</React.Fragment>
 							))}
+							<Modal
+								classNames={{
+									modal:
+										"!my-10 md:!my-5 !mx-0 lg:!mx-5 relative overflow-x-hidden !overflow-y-auto !w-screen md:!max-w-3xl lg:!max-w-5xl xl:!max-w-[calc(100%-10rem)] rounded-md",
+									closeButton: "hidden",
+									closeIcon: "hidden",
+								}}
+								open={isOpen}
+								onClose={close}>
+								{currentPhoto && (
+									<>
+										<IoMdClose
+											className="fixed top-2 left-2 text-white/80 hover:text-white transition-default cursor-pointer"
+											onClick={close}
+											size={25}
+										/>
+
+										<PhotoDetail
+											//  detailData={currentPhoto}
+											id={currentPhoto.id}
+											placeholderData={{
+												...currentPhoto,
+												views: null,
+												downloads: null,
+												topics: [],
+												location: {},
+												exif: {},
+											}}
+										/>
+									</>
+								)}
+							</Modal>
 						</>
 					)
 				)}
