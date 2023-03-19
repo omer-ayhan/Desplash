@@ -44,15 +44,6 @@ export default function SearchPhoto({
 		null
 	);
 
-	const formatTitle = (title: string) => {
-		let decoded = decodeURIComponent(title);
-		let words = decoded.split(" ");
-		let capitalized = words
-			.map((word) => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase())
-			.join(" ");
-		return capitalized;
-	};
-
 	const {
 		status,
 		data: photos,
@@ -156,6 +147,7 @@ export default function SearchPhoto({
 										{page.photos.map((data, i) => (
 											<ImageButton
 												key={data.id}
+												className="break-inside-avoid"
 												data={data}
 												onClick={() => {
 													setCurrentPhoto({
