@@ -72,7 +72,7 @@ export function PhotoDetail({
 	return (
 		<>
 			<div className="sticky top-0 left-0 p-3 md:px-6  bg-white w-full flex gap-3 flex-col md:flex-row items-center justify-between">
-				<div className="w-full  flex gap-2 items-center">
+				<Link href="/" className="w-full  flex gap-2 items-center">
 					<Image
 						src={user.profile_image.medium}
 						width={33}
@@ -81,15 +81,15 @@ export function PhotoDetail({
 						className="rounded-full"
 					/>
 
-					<Link href="/" className="text-white/80 hover:text-white">
+					<div className="text-white/80 hover:text-white">
 						<p className="text-primary-main text-sm font-medium capitalize">
 							{user.name}
 						</p>
 						<p className="text-primary-secondary font-light text-sm hover:text-primary-main transition-default">
 							{user.username}
 						</p>
-					</Link>
-				</div>
+					</div>
+				</Link>
 				<div className="w-full flex gap-2 items-center justify-between md:justify-end">
 					<Button className="px-2 py-2 text-xl bg-white hover:border-primary-secondary">
 						<AiFillHeart
