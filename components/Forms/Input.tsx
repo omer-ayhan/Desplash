@@ -13,6 +13,7 @@ interface InputProps extends InputHTMLAttributes<HTMLInputElement> {
 	icon?: ReactElement<IconType>;
 	infoIcon?: ReactElement<IconType>;
 	info?: string;
+	ref?: any;
 }
 
 export function Input({
@@ -26,6 +27,7 @@ export function Input({
 	icon,
 	info,
 	infoIcon,
+	ref,
 	...rest
 }: InputProps) {
 	const hasError = !!error;
@@ -39,6 +41,7 @@ export function Input({
 				</label>
 			)}
 			<input
+				ref={ref}
 				className={`relative w-full ${icon ? "!pl-8" : ""} p-3 border ${
 					hasError
 						? "focus:border-red-500 border-red-500"

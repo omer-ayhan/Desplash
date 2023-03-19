@@ -1,10 +1,17 @@
 import Link from "next/link";
+import { useRouter } from "next/router";
+import { useState } from "react";
 import { AiOutlineSearch } from "react-icons/ai";
 import { Input } from "./Forms";
 
 const cats = Array.from({ length: 15 }, (_, i) => i + 1);
 
 export function Navbar() {
+	const router = useRouter();
+	const [searchText, setSearchText] = useState<string>(
+		router.query.search as string
+	);
+
 	return (
 		<nav className="w-screen bg-white flex flex-col fixed top-0 z-50">
 			<div className="p-3 px-5 flex gap-5 items-center">
@@ -14,6 +21,13 @@ export function Navbar() {
 
 				<Input
 					className="flex-1"
+					value={searchText}
+					onChange={(e) => setSearchText(e.currentTarget.value)}
+					onKeyDown={(e) => {
+						if (e.key === "Enter") {
+							router.push(`/s/photos/${e.currentTarget.value}`);
+						}
+					}}
 					icon={<AiOutlineSearch size={20} className="text-gray-500 " />}
 					inputClass="!p-2 !px-4 placeholder:text-gray-500 text-main rounded-full bg-gray-200 focus:bg-white border-transparent hover:border-gray-300"
 					placeholder="Search"
