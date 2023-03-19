@@ -1,7 +1,8 @@
+import Head from "next/head";
 import React, { useEffect } from "react";
 import Image from "next/image";
 import Link from "next/link";
-import { AiOutlineClose, AiOutlineSearch } from "react-icons/ai";
+import { AiOutlineSearch } from "react-icons/ai";
 import axios, { AxiosError } from "axios";
 import { useInfiniteQuery } from "react-query";
 import { useInView } from "react-intersection-observer";
@@ -76,111 +77,127 @@ export default function Home({ randomPhoto }: { randomPhoto: PhotoType }) {
 	}, [inView]);
 
 	return (
-		<div>
-			<section className="relative grid gap-5 place-content-center  w-screen h-[700px] bg-blend-darken overflow-hidden">
-				<Image
-					src={randomPhoto.urls.full}
-					fill
-					className="-z-50 object-cover"
-					alt={randomPhoto.alt_description}
-				/>
-				<div className="-z-40 absolute w-full h-full bg-primary-main/30" />
+		<>
+			<Head>
+				<title>
+					{currentPhoto?.alt_description ||
+						"Best Free Photos & Images | Desplash"}
+				</title>
+			</Head>
+			<div>
+				<section className="relative grid gap-5 place-content-center  w-screen h-[700px] bg-blend-darken overflow-hidden">
+					<Image
+						src={randomPhoto.urls.full}
+						fill
+						className="-z-50 object-cover"
+						alt={randomPhoto.alt_description}
+					/>
+					<div className="-z-40 absolute w-full h-full bg-primary-main/30" />
 
-				<h1 className="text-center text-5xl font-medium text-white">
-					Desplash
-				</h1>
-				<p className="mx-auto max-w-md text-center text-white text-lg">
-					The internet’s source for visuals. Powered by creators everywhere.
-				</p>
+					<h1 className="text-center text-5xl font-medium text-white">
+						Desplash
+					</h1>
+					<p className="mx-auto max-w-md text-center text-white text-lg">
+						The internet’s source for visuals. Powered by creators everywhere.
+					</p>
 
-				<Input
-					className="flex-1 "
-					icon={<AiOutlineSearch size={20} className="text-gray-500 " />}
-					inputClass="w-[900px] py-3 text-primary-main placeholder:text-gray-500 text-main bg-white border-transparent focus:ring-4 focus:ring-2 focus:ring-main focus:ring-opacity-50"
-					placeholder="Search your desired photos"
-					type="text"
-					name="search"
-				/>
-				<p className="absolute bottom-5 left-5 text-sm text-white/80">
-					Photo by{" "}
-					<Link
-						href="/"
-						className="text-white/90 hover:text-white transition-default">
-						{randomPhoto.user.name}
-					</Link>
-				</p>
-			</section>
-			<section className="my-10 mx-auto max-w-6xl masonry-col-3 masonry-gap-3 transition-default">
-				{status === "loading" ? (
-					<p>Loading...</p>
-				) : status === "error" ? (
-					<span>Error: {error.message} </span>
-				) : (
-					status === "success" && (
-						<>
-							{photos.pages.map((page) => (
-								<React.Fragment key={`${page.nextId}-?${page.prevId}`}>
-									{page.data.map((data) => (
-										<ImageButton
-											key={data.id}
-											data={data}
-											onClick={() => {
-												setCurrentPhoto(data);
-												open();
-											}}
-										/>
-									))}
-								</React.Fragment>
-							))}
-							<Modal
-								classNames={{
-									modal:
-										"!my-10 md:!my-5 !mx-0 lg:!mx-5 !p-6 relative overflow-x-hidden !overflow-y-auto !w-screen md:!max-w-3xl lg:!max-w-5xl xl:!max-w-[calc(100%-10rem)] rounded-md",
-									closeButton: "hidden",
-									closeIcon: "hidden",
-								}}
-								center
-								open={isOpen}
-								onClose={close}>
-								{currentPhoto && (
-									<>
-										<IoMdClose
-											className="fixed top-2 left-2 text-white/80 hover:text-white transition-default cursor-pointer"
-											onClick={close}
-											size={25}
-										/>
+					<Input
+						className="flex-1 "
+						icon={<AiOutlineSearch size={20} className="text-gray-500 " />}
+						inputClass="w-[900px] py-3 text-primary-main placeholder:text-gray-500 text-main bg-white border-transparent focus:ring-4 focus:ring-2 focus:ring-main focus:ring-opacity-50"
+						placeholder="Search your desired photos"
+						type="text"
+						name="search"
+					/>
+					<p className="absolute bottom-5 left-5 text-sm text-white/80">
+						Photo by{" "}
+						<Link
+							href="/"
+							className="text-white/90 hover:text-white transition-default">
+							{randomPhoto.user.name}
+						</Link>
+					</p>
+				</section>
+				<section className="my-10 mx-auto max-w-6xl masonry-col-3 masonry-gap-3 transition-default">
+					{status === "loading" ? (
+						<p>Loading...</p>
+					) : status === "error" ? (
+						<span>Error: {error.message} </span>
+					) : (
+						status === "success" && (
+							<>
+								{photos.pages.map((page) => (
+									<React.Fragment key={`${page.nextId}-?${page.prevId}`}>
+										{page.data.map((data) => (
+											<ImageButton
+												key={data.id}
+												data={data}
+												onClick={() => {
+													setCurrentPhoto(data);
+													open();
+												}}
+											/>
+										))}
+									</React.Fragment>
+								))}
+								<Modal
+									classNames={{
+										modal:
+											"!my-10 md:!my-5 !mx-0 lg:!mx-5 !p-6 relative overflow-x-hidden !overflow-y-auto !w-screen md:!max-w-3xl lg:!max-w-5xl xl:!max-w-[calc(100%-10rem)] rounded-md",
+										closeButton: "hidden",
+										closeIcon: "hidden",
+									}}
+									center
+									open={isOpen}
+									onClose={() => {
+										setCurrentPhoto(null);
+										close();
+									}}>
+									{currentPhoto && (
+										<>
+											<IoMdClose
+												className="fixed top-2 left-2 text-white/80 hover:text-white transition-default cursor-pointer"
+												onClick={close}
+												size={25}
+											/>
 
-										<PhotoDetail
-											id={currentPhoto.id}
-											placeholderData={{
-												...currentPhoto,
-												views: null,
-												downloads: null,
-												topics: [],
-												location: {},
-												exif: {},
-												tags: [],
-											}}>
-											<RelatedPhotos id={currentPhoto.id} />
-										</PhotoDetail>
-									</>
-								)}
-							</Modal>
-						</>
-					)
+											<PhotoDetail
+												id={currentPhoto.id}
+												placeholderData={{
+													...currentPhoto,
+													views: null,
+													downloads: null,
+													topics: [],
+													location: {},
+													exif: {},
+													tags: [],
+												}}>
+												<RelatedPhotos
+													id={currentPhoto.id}
+													onPhotoClick={(photo) => {
+														setCurrentPhoto(photo);
+													}}
+												/>
+											</PhotoDetail>
+										</>
+									)}
+								</Modal>
+							</>
+						)
+					)}
+				</section>
+				{status === "success" && (
+					<div ref={ref}>
+						<Button
+							className="mx-auto my-5"
+							onClick={() => fetchNextPage()}
+							loading={isFetchingNextPage}>
+							Load More
+						</Button>
+					</div>
 				)}
-			</section>
-			{status === "success" && (
-				<div ref={ref}>
-					<Button
-						className="mx-auto my-5"
-						onClick={() => fetchNextPage()}
-						loading={isFetchingNextPage}>
-						Load More
-					</Button>
-				</div>
-			)}
-		</div>
+			</div>
+		</>
 	);
 }
 

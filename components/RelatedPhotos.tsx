@@ -5,20 +5,20 @@ import { ImageButton } from "./ImageButton";
 
 interface RelatedPhotosProps {
 	id: string;
+	onPhotoClick: (photo: PhotoType) => void;
 }
 
-export function RelatedPhotos({ id }: RelatedPhotosProps) {
-	const {
-		data: related,
-		status,
-		isLoading,
-	} = useQuery(`related-photos-${id}`, async () => {
-		const { data } = await axios.get<{
-			total: number;
-			photos: PhotoType[];
-		}>(`/api/photos/${id}/related`);
-		return data;
-	});
+export function RelatedPhotos({ id, onPhotoClick }: RelatedPhotosProps) {
+	const { data: related, status } = useQuery(
+		`related-photos-${id}`,
+		async () => {
+			const { data } = await axios.get<{
+				total: number;
+				photos: PhotoType[];
+			}>(`/api/photos/${id}/related`);
+			return data;
+		}
+	);
 
 	return (
 		<div className="mx-auto w-[85%]">
@@ -30,7 +30,7 @@ export function RelatedPhotos({ id }: RelatedPhotosProps) {
 							key={data.id}
 							className="mb-4"
 							data={data}
-							onClick={() => {}}
+							onClick={() => onPhotoClick(data)}
 							width={500}
 						/>
 					))}

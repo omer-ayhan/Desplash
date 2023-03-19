@@ -1,7 +1,9 @@
+import { useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
+import { FiCamera } from "react-icons/fi";
 import { useQuery } from "react-query";
-import { AiFillHeart, AiOutlineCamera } from "react-icons/ai";
+import { AiFillHeart } from "react-icons/ai";
 import axios from "axios";
 import { BsCalendar, BsShieldCheck } from "react-icons/bs";
 import { IoMdShareAlt } from "react-icons/io";
@@ -11,8 +13,7 @@ import { PhotoDetailType } from "@/types/photos";
 import { cn } from "@/services/local";
 import { useDisclosure } from "@/hooks";
 import { Button } from "./Button";
-import { FiCamera } from "react-icons/fi";
-import { Tooltip } from "./Forms";
+import { NextImage } from "./NextImage";
 
 interface PhotoDetailProps {
 	id: string;
@@ -26,6 +27,7 @@ export function PhotoDetail({
 	children,
 }: PhotoDetailProps) {
 	const { isOpen: isZoom, toggle } = useDisclosure();
+
 	const { data, isLoading } = useQuery<PhotoDetailType>(
 		`photo-detail-${id}`,
 		async () => {
@@ -106,11 +108,14 @@ export function PhotoDetail({
 					)}
 				</div>
 			</div>
-			<Image
+
+			<NextImage
 				className={cn(
 					"mx-auto w-full h-auto cursor-zoom-in",
-					width > height ? "max-w-5xl" : "max-3xl md:max-w-md"
+					width > height ? "max-w-5xl" : "max-3xl md:max-w-md",
+					isLoading ? "hidden" : ""
 				)}
+				isLandscape={width > height}
 				style={{
 					zoom: isZoom ? 2 : 1,
 				}}
