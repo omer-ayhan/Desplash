@@ -49,6 +49,7 @@ export default function Home({
 		error,
 		isFetchingNextPage,
 		fetchNextPage,
+		hasNextPage,
 	} = useInfiniteQuery<
 		{
 			data: PhotoType[];
@@ -96,10 +97,11 @@ export default function Home({
 			},
 		}
 	);
+	const handleFetchPage = () => hasNextPage && fetchNextPage();
 
 	useEffect(() => {
 		if (inView) {
-			fetchNextPage();
+			handleFetchPage();
 		}
 	}, [inView]);
 
@@ -120,51 +122,110 @@ export default function Home({
 					/>
 				)}
 			</Head>
-			<div>
-				<section className="relative grid gap-5 place-content-center  w-screen h-[700px] bg-blend-darken overflow-hidden">
-					<Image
-						src={initialValue.heroValue.cover_photo.urls.full}
-						fill
-						className="-z-50 object-cover"
-						alt={initialValue.heroValue.cover_photo.alt_description}
-					/>
-					<div className="-z-40 absolute w-full h-full bg-primary-main/30" />
+			<section className="relative grid gap-5 place-content-center  w-screen h-[700px] bg-blend-darken overflow-hidden">
+				<Image
+					src={initialValue.heroValue.cover_photo.urls.full}
+					fill
+					className="-z-50 object-cover"
+					alt={initialValue.heroValue.cover_photo.alt_description}
+				/>
+				<div className="-z-40 absolute w-full h-full bg-primary-main/30" />
 
-					<h1 className="text-center text-5xl font-medium text-white">
-						{initialValue.heroValue.title}
-					</h1>
-					<p className="mx-auto max-w-md text-center text-white text-lg">
-						{initialValue.heroValue.description}
-					</p>
-					<p className="absolute bottom-5 left-5 text-sm text-white/80">
-						Photo by{" "}
-						<Link
-							href="/"
-							className="text-white/90 hover:text-white transition-default">
-							{initialValue.heroValue.cover_photo.user.name}
-						</Link>
-					</p>
-				</section>
-				<section className="my-10 mx-auto max-w-6xl masonry-col-3 masonry-gap-3 transition-default">
-					{status === "loading" ? (
-						<p>Loading...</p>
-					) : status === "error" ? (
-						<span>Error: {error.message} </span>
-					) : (
-						status === "success" && (
-							<>
-								{photos.pages.map((page) => (
-									<Fragment key={`${page.nextId}-?${page.prevId}`}>
-										{page.data.map((data, i) => (
-											<ImageButton
-												key={data.id}
-												className="break-inside-avoid"
-												data={data}
-												onClick={() => {
-													setCurrentPhoto({
-														...data,
-														index: i,
-													});
+				<h1 className="text-center text-5xl font-medium text-white">
+					{initialValue.heroValue.title}
+				</h1>
+				<p className="mx-auto max-w-md text-center text-white text-lg">
+					{initialValue.heroValue.description}
+				</p>
+				<p className="absolute bottom-5 left-5 text-sm text-white/80">
+					Photo by{" "}
+					<Link
+						href="/"
+						className="text-white/90 hover:text-white transition-default">
+						{initialValue.heroValue.cover_photo.user.name}
+					</Link>
+				</p>
+			</section>
+			<section className="my-10 mx-auto max-w-6xl masonry-col-3 masonry-gap-3 transition-default">
+				{status === "loading" ? (
+					<p>Loading...</p>
+				) : status === "error" ? (
+					<span>Error: {error.message} </span>
+				) : (
+					status === "success" && (
+						<>
+							{photos.pages.map((page) => (
+								<Fragment key={`${page.nextId}-?${page.prevId}`}>
+									{page.data.map((data, i) => (
+										<ImageButton
+											key={data.id}
+											className="break-inside-avoid"
+											data={data}
+											onClick={() => {
+												setCurrentPhoto({
+													...data,
+													index: i,
+												});
+												router.push(
+													{
+														pathname: `/topics/[topic]`,
+														query: {
+															topic: router.query.topic,
+														},
+													},
+													`/photos/${data.id}`,
+													{
+														shallow: true,
+													}
+												);
+												open();
+											}}
+										/>
+									))}
+								</Fragment>
+							))}
+							<Modal
+								classNames={{
+									modal:
+										"!my-10 md:!my-5 !mx-0 lg:!mx-5 !p-0 relative overflow-x-hidden !overflow-y-auto !w-screen md:!max-w-3xl lg:!max-w-5xl xl:!max-w-[calc(100%-10rem)] rounded-md",
+									closeButton: "hidden",
+									closeIcon: "hidden",
+								}}
+								center
+								open={isOpen}
+								onClose={() => {
+									setCurrentPhoto(null);
+									router.replace(
+										`/topics/${router.query.topic}`,
+										`/topics/${router.query.topic}`,
+										{
+											shallow: true,
+										}
+									);
+									close();
+								}}>
+								{currentPhoto && (
+									<>
+										<IoMdClose
+											className="fixed top-2 left-2 text-white/80 hover:text-white transition-default cursor-pointer"
+											onClick={close}
+											size={25}
+										/>
+
+										<PhotoDetail
+											id={currentPhoto.id}
+											placeholderData={{
+												...currentPhoto,
+												views: null,
+												downloads: null,
+												topics: [],
+												location: {},
+												exif: {},
+												tags: [],
+											}}>
+											<RelatedPhotos
+												id={currentPhoto.id}
+												onPhotoClick={(photo) => {
 													router.push(
 														{
 															pathname: `/topics/[topic]`,
@@ -172,129 +233,68 @@ export default function Home({
 																topic: router.query.topic,
 															},
 														},
-														`/photos/${data.id}`,
+														`/photos/${currentPhoto.id}`,
 														{
 															shallow: true,
 														}
 													);
-													open();
+													setCurrentPhoto(photo);
 												}}
 											/>
-										))}
-									</Fragment>
-								))}
-								<Modal
-									classNames={{
-										modal:
-											"!my-10 md:!my-5 !mx-0 lg:!mx-5 !p-0 relative overflow-x-hidden !overflow-y-auto !w-screen md:!max-w-3xl lg:!max-w-5xl xl:!max-w-[calc(100%-10rem)] rounded-md",
-										closeButton: "hidden",
-										closeIcon: "hidden",
-									}}
-									center
-									open={isOpen}
-									onClose={() => {
-										setCurrentPhoto(null);
-										router.replace(
-											`/topics/${router.query.topic}`,
-											`/topics/${router.query.topic}`,
-											{
-												shallow: true,
-											}
-										);
-										close();
-									}}>
-									{currentPhoto && (
-										<>
-											<IoMdClose
-												className="fixed top-2 left-2 text-white/80 hover:text-white transition-default cursor-pointer"
-												onClick={close}
-												size={25}
+										</PhotoDetail>
+										<button
+											type="button"
+											className="hidden md:block fixed top-1/2 left-7 text-white/80 hover:text-white disabled:text-white/60"
+											onClick={() => {
+												const photoArr = photos.pages.flatMap(
+													(page) => page.data
+												)[currentPhoto.index - 1];
+												setCurrentPhoto({
+													...photoArr,
+													index: currentPhoto.index - 1,
+												});
+											}}
+											disabled={currentPhoto.index === 0}>
+											<FaChevronLeft
+												className="text-inherit  transition-default"
+												size={30}
 											/>
-
-											<PhotoDetail
-												id={currentPhoto.id}
-												placeholderData={{
-													...currentPhoto,
-													views: null,
-													downloads: null,
-													topics: [],
-													location: {},
-													exif: {},
-													tags: [],
-												}}>
-												<RelatedPhotos
-													id={currentPhoto.id}
-													onPhotoClick={(photo) => {
-														router.push(
-															{
-																pathname: `/topics/[topic]`,
-																query: {
-																	topic: router.query.topic,
-																},
-															},
-															`/photos/${currentPhoto.id}`,
-															{
-																shallow: true,
-															}
-														);
-														setCurrentPhoto(photo);
-													}}
-												/>
-											</PhotoDetail>
-											<button
-												type="button"
-												className="hidden md:block fixed top-1/2 left-7 text-white/80 hover:text-white disabled:text-white/60"
-												onClick={() => {
-													const photoArr = photos.pages.flatMap(
-														(page) => page.data
-													)[currentPhoto.index - 1];
-													setCurrentPhoto({
-														...photoArr,
-														index: currentPhoto.index - 1,
-													});
-												}}
-												disabled={currentPhoto.index === 0}>
-												<FaChevronLeft
-													className="text-inherit  transition-default"
-													size={30}
-												/>
-											</button>
-											<button
-												type="button"
-												className="hidden md:block fixed top-1/2 right-7 text-white/80 hover:text-white disabled:text-white/60"
-												onClick={() => {
-													const photoArr = photos.pages.flatMap(
-														(page) => page.data
-													)[currentPhoto.index + 1];
-													setCurrentPhoto({
-														...photoArr,
-														index: currentPhoto.index + 1,
-													});
-													console.log(photoArr);
-												}}>
-												<FaChevronRight
-													className="text-inherit transition-default"
-													size={30}
-												/>
-											</button>
-										</>
-									)}
-								</Modal>
-							</>
-						)
-					)}
-				</section>
-				{status === "success" && (
-					<div ref={ref}>
-						<Button
-							className="mx-auto my-5"
-							onClick={() => fetchNextPage()}
-							loading={isFetchingNextPage}>
-							Load More
-						</Button>
-					</div>
+										</button>
+										<button
+											type="button"
+											className="hidden md:block fixed top-1/2 right-7 text-white/80 hover:text-white disabled:text-white/60"
+											onClick={() => {
+												const photoArr = photos.pages.flatMap(
+													(page) => page.data
+												)[currentPhoto.index + 1];
+												setCurrentPhoto({
+													...photoArr,
+													index: currentPhoto.index + 1,
+												});
+												console.log(photoArr);
+											}}>
+											<FaChevronRight
+												className="text-inherit transition-default"
+												size={30}
+											/>
+										</button>
+									</>
+								)}
+							</Modal>
+						</>
+					)
 				)}
-			</div>
+			</section>
+			{status === "success" && hasNextPage && (
+				<div ref={ref}>
+					<Button
+						className="mx-auto my-5"
+						onClick={handleFetchPage}
+						loading={isFetchingNextPage}>
+						Load More
+					</Button>
+				</div>
+			)}
 		</>
 	);
 }

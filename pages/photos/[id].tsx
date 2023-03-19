@@ -31,7 +31,7 @@ export default function PhotoDetailPage({
 						"Best Free Photos & Images | Desplash"}
 				</title>
 			</Head>
-			<div className="pt-28">
+			<div className="pt-1">
 				<PhotoDetail id={details.id} placeholderData={details} noFetch>
 					<RelatedPhotos
 						id={details.id}

@@ -33,6 +33,7 @@ export default function Home({ randomPhoto }: { randomPhoto: PhotoType }) {
 		error,
 		isFetchingNextPage,
 		fetchNextPage,
+		hasNextPage,
 	} = useInfiniteQuery<
 		{
 			data: PhotoType[];
@@ -71,9 +72,11 @@ export default function Home({ randomPhoto }: { randomPhoto: PhotoType }) {
 		}
 	);
 
+	const handleFetchPage = () => hasNextPage && fetchNextPage();
+
 	useEffect(() => {
 		if (inView) {
-			fetchNextPage();
+			handleFetchPage();
 		}
 	}, [inView]);
 
@@ -125,7 +128,7 @@ export default function Home({ randomPhoto }: { randomPhoto: PhotoType }) {
 						</Link>
 					</p>
 				</section>
-				<section className="my-10 mx-auto max-w-6xl masonry-col-3 masonry-gap-3 transition-default">
+				<section className="my-10 mx-auto max-w-6xl masonry-col-2 lg:masonry-col-3 masonry-gap-3 transition-default">
 					{status === "loading" ? (
 						<p>Loading...</p>
 					) : status === "error" ? (
@@ -250,7 +253,7 @@ export default function Home({ randomPhoto }: { randomPhoto: PhotoType }) {
 						)
 					)}
 				</section>
-				{status === "success" && (
+				{status === "success" && hasNextPage && (
 					<div ref={ref}>
 						<Button
 							className="mx-auto my-5"

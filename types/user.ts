@@ -23,6 +23,7 @@ export type UserDetailType = UserType & {
 			title: string;
 		}[];
 	};
+	downloads: number;
 };
 
 export type UserType = {

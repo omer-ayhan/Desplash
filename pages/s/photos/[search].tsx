@@ -50,6 +50,7 @@ export default function SearchPhoto({
 		error,
 		isFetchingNextPage,
 		fetchNextPage,
+		hasNextPage,
 	} = useInfiniteQuery<
 		{
 			photos: PhotoType[];
@@ -60,6 +61,14 @@ export default function SearchPhoto({
 	>(
 		[`search-${router.query.search}}`],
 		async ({ pageParam = 1, signal }) => {
+			if (!pageParam)
+				return {
+					photos: [],
+					nextId: null,
+					prevId: null,
+					meta: {},
+				};
+
 			const { data: photoRes } = await axios.get<{
 				photos: PhotoType[];
 				meta: {
@@ -98,11 +107,11 @@ export default function SearchPhoto({
 		}
 	);
 
-	const handleFetchPage = () => fetchNextPage();
+	const handleFetchPage = () => hasNextPage && fetchNextPage();
 
 	useEffect(() => {
 		if (inView) {
-			fetchNextPage();
+			handleFetchPage();
 		}
 	}, [inView]);
 
@@ -119,7 +128,7 @@ export default function SearchPhoto({
 				</title>
 			</Head>
 			<div>
-				<section className="mt-32 pb-5 mx-auto max-w-6xl relative   w-screen  bg-blend-darken overflow-hidden">
+				<section className="pt-1 pb-5 mx-auto max-w-6xl relative   w-screen  bg-blend-darken overflow-hidden">
 					<h2 className="capitalize font-medium">{router.query.search}</h2>
 					<div className="flex items-center gap-3 flex-wrap">
 						{initialData.related.map((related) => (
@@ -273,7 +282,7 @@ export default function SearchPhoto({
 						)
 					)}
 				</section>
-				{status === "success" && (
+				{status === "success" && hasNextPage && (
 					<div ref={ref}>
 						<Button
 							className="mx-auto my-5"

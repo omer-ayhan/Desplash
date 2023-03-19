@@ -102,10 +102,20 @@ module.exports = {
 					},
 				},
 
+				".link-default": {
+					color: theme("colors.primary-secondary"),
+					fontSize: theme("fontSize.md"),
+					"&:hover": {
+						color: theme("colors.primary-main"),
+					},
+					transition: "all 250ms ease-in-out",
+				},
+
 				".vignette": {
 					"box-shadow": "0 0 200px rgba(0,0,0,0.7) inset",
 				},
 			});
 		}),
+		require("@tailwindcss/line-clamp"),
 	],
 };

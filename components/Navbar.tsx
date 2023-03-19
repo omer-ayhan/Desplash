@@ -7,8 +7,11 @@ import { useQuery } from "react-query";
 
 import { Input } from "./Forms";
 
+const privateRoutes = ["/[user]"];
+
 export function Navbar() {
 	const router = useRouter();
+	console.log(router.pathname);
 	const { data: topics, status } = useQuery<
 		{
 			id: string;
@@ -27,7 +30,7 @@ export function Navbar() {
 	);
 
 	return (
-		<nav className="w-screen bg-white flex flex-col fixed top-0 z-50">
+		<nav className="w-screen bg-white flex flex-col sticky top-0 z-50">
 			<div className="p-3 px-5 flex gap-5 items-center">
 				<Link href="/" className="text-xl font-bold">
 					Desplash
@@ -69,7 +72,7 @@ export function Navbar() {
 					</li>
 				</ul>
 			</div>
-			{status === "success" && (
+			{status === "success" && !privateRoutes.includes(router.pathname) && (
 				<ul className="relative p-3 py-4 flex gap-5 items-center overflow-y-hidden overflow-x-scroll scrollbar-hide">
 					{topics.slice(0, 10).map(({ id, slug, title }) => (
 						<li key={id}>

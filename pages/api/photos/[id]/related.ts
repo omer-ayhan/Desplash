@@ -2,7 +2,7 @@ import { PhotoType } from "@/types/photos";
 import axios, { AxiosError } from "axios";
 import { NextApiRequest, NextApiResponse } from "next";
 
-export default async function GET(
+export default async function handler(
 	req: NextApiRequest,
 	res: NextApiResponse<
 		| {

@@ -3,7 +3,7 @@
 @tailwind utilities;
 
 #__next {
-	overflow-x: hidden;
+	contain: paint;
 }
 
 .tooltip {

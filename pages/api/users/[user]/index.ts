@@ -13,7 +13,7 @@ export default async function handler(
 	switch (method) {
 		case "GET":
 			try {
-				const { data, headers } = await axios.get(
+				const { data } = await axios.get(
 					`https://unsplash.com/napi/users/${user}`
 				);
 

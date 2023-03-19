@@ -6,7 +6,7 @@ export default async function handler(
 	req: NextApiRequest,
 	res: NextApiResponse<
 		| {
-				data: PhotoType[];
+				photos: PhotoType[];
 				nextId: number | null;
 				prevId: number | null;
 		  }
@@ -15,14 +15,13 @@ export default async function handler(
 ) {
 	const { method } = req;
 
-	const { per_page, page, topic } = req.query;
+	const { per_page, page, user } = req.query;
 
 	switch (method) {
 		case "GET":
 			try {
-				// Get data from your database
-				const { data, headers } = await axios.get(
-					`https://unsplash.com/napi/topics/${topic}/photos?per_page=${per_page}&page=${page}&xp=search-quality-boosting%3Acontrol`
+				const { data: photos, headers } = await axios.get(
+					`https://unsplash.com/napi/users/${user}/photos?per_page=${per_page}&page=${page}&xp=search-quality-boosting%3Acontrol`
 				);
 
 				const linkHeader = headers.link;
@@ -30,7 +29,7 @@ export default async function handler(
 				const pageParam = Number(page);
 
 				res.status(200).json({
-					data,
+					photos,
 					nextId: hasNextLink ? pageParam + 1 : null,
 					prevId: pageParam > 1 ? pageParam - 1 : pageParam === 1 ? 1 : null,
 				});
