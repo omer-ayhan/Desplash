@@ -6,12 +6,23 @@ import { ImageButton } from "./ImageButton";
 interface RelatedPhotosProps {
 	id: string;
 	onPhotoClick: (photo: PhotoType) => void;
+	placeholderData?: {
+		total: number;
+		photos: PhotoType[];
+	};
+	noFetch?: boolean;
 }
 
-export function RelatedPhotos({ id, onPhotoClick }: RelatedPhotosProps) {
+export function RelatedPhotos({
+	id,
+	onPhotoClick,
+	placeholderData,
+	noFetch,
+}: RelatedPhotosProps) {
 	const { data: related, status } = useQuery(
 		`related-photos-${id}`,
 		async () => {
+			if (noFetch) return placeholderData;
 			const { data } = await axios.get<{
 				total: number;
 				photos: PhotoType[];
@@ -25,6 +36,7 @@ export function RelatedPhotos({ id, onPhotoClick }: RelatedPhotosProps) {
 			<h4 className="mb-4">Related Photos</h4>
 			<div className="w-full masonry-col-2 masonry-gap-2 lg:masonry-col-3 lg:masonry-gap-4">
 				{status === "success" &&
+					related &&
 					related.photos.map((data) => (
 						<ImageButton
 							key={data.id}
