@@ -156,7 +156,7 @@ export default function Home({ randomPhoto }: { randomPhoto: PhotoType }) {
 								<Modal
 									classNames={{
 										modal:
-											"!my-10 md:!my-5 !mx-0 lg:!mx-5 !p-6 relative overflow-x-hidden !overflow-y-auto !w-screen md:!max-w-3xl lg:!max-w-5xl xl:!max-w-[calc(100%-10rem)] rounded-md",
+											"!my-10 md:!my-5 !mx-0 lg:!mx-5 !p-0 relative overflow-x-hidden !overflow-y-auto !w-screen md:!max-w-3xl lg:!max-w-5xl xl:!max-w-[calc(100%-10rem)] rounded-md",
 										closeButton: "hidden",
 										closeIcon: "hidden",
 									}}
@@ -204,7 +204,7 @@ export default function Home({ randomPhoto }: { randomPhoto: PhotoType }) {
 											</PhotoDetail>
 											<button
 												type="button"
-												className="fixed top-1/2 left-7 text-white/80 hover:text-white disabled:text-white/60"
+												className="hidden md:block fixed top-1/2 left-7 text-white/80 hover:text-white disabled:text-white/60"
 												onClick={() => {
 													const photoArr = photos.pages.flatMap(
 														(page) => page.data
@@ -222,7 +222,7 @@ export default function Home({ randomPhoto }: { randomPhoto: PhotoType }) {
 											</button>
 											<button
 												type="button"
-												className="fixed top-1/2 right-7 text-white/80 hover:text-white disabled:text-white/60"
+												className="hidden md:block fixed top-1/2 right-7 text-white/80 hover:text-white disabled:text-white/60"
 												onClick={() => {
 													const photoArr = photos.pages.flatMap(
 														(page) => page.data

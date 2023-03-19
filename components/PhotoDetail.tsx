@@ -71,8 +71,8 @@ export function PhotoDetail({
 
 	return (
 		<>
-			<div className="sticky top-0 left-0 p-3 bg-white w-full flex items-center justify-between">
-				<div className="flex gap-2 items-center">
+			<div className="sticky top-0 left-0 p-3 md:px-6  bg-white w-full flex gap-3 flex-col md:flex-row items-center justify-between">
+				<div className="w-full  flex gap-2 items-center">
 					<Image
 						src={user.profile_image.medium}
 						width={33}
@@ -90,7 +90,7 @@ export function PhotoDetail({
 						</p>
 					</Link>
 				</div>
-				<div className="flex gap-2 items-center">
+				<div className="w-full flex gap-2 items-center justify-between md:justify-end">
 					<Button className="px-2 py-2 text-xl bg-white hover:border-primary-secondary">
 						<AiFillHeart
 							className=" text-primary-secondary rounded-md hover:text-primary-main transition-default cursor-pointer"
@@ -129,8 +129,8 @@ export function PhotoDetail({
 				alt={alt_description || user.name}
 			/>
 
-			<div className="py-5 grid gap-5 grid-cols-[300px_minmax(0,1fr)_300px]">
-				<div className="grid grid-cols-2">
+			<div className="px-3 md:px-6 py-5 grid gap-5 grid-cols-1 md:grid-cols-[300px_minmax(0,1fr)_100px] lg:grid-cols-[300px_minmax(0,1fr)_300px]">
+				<div className="grid grid-cols-1 md:grid-cols-2">
 					<div>
 						<p className="text-primary-secondary text-sm">Views</p>
 						<p className="text-md text-primary-main font-medium">
@@ -144,13 +144,21 @@ export function PhotoDetail({
 						</p>
 					</div>
 				</div>
-				<div>
-					<p className="text-primary-secondary text-sm">Featured in</p>
-					<p className="text-md text-primary-main font-medium">
-						{topics?.length
-							? topics.map((topic) => topic.title).join(", ")
-							: "--"}
-					</p>
+				<div className="grid grid-cols-1 md:grid-cols-2">
+					<div>
+						<p className="text-primary-secondary text-sm">Featured in</p>
+						<p className="text-md text-primary-main font-medium">
+							{topics?.length
+								? topics.map((topic) => topic.title).join(", ")
+								: "--"}
+						</p>
+					</div>
+					<div>
+						<p className="text-primary-secondary text-sm">Dimensions</p>
+						<p className="text-md text-primary-main font-medium">
+							{width} X {height}
+						</p>
+					</div>
 				</div>
 
 				<div>
@@ -181,14 +189,14 @@ export function PhotoDetail({
 						{premium ? "License: Premium" : "License: Free"}
 					</p>
 				</div>
-				<div>
+				<div className="md:col-span-2">
 					<p className="text-md text-primary-main font-medium">
 						{alt_description}
 					</p>
 				</div>
 			</div>
 			{children}
-			<div className="mx-auto w-[85%] mt-10">
+			<div className="p-3 pb-5 md:px-6 mx-auto w-[85%] mt-10">
 				<h4 className="mb-4">Related Photos</h4>
 				<div className="flex gap-3 items-center flex-wrap">
 					{tags.map((tag) => (
