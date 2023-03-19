@@ -103,6 +103,7 @@ export default function Home({ randomPhoto }: { randomPhoto: PhotoType }) {
 					</p>
 
 					<Input
+						id="search-home"
 						onKeyDown={(e) => {
 							if (e.key === "Enter") {
 								router.push(`/s/photos/${e.currentTarget.value}`);

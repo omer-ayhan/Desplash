@@ -34,6 +34,7 @@ export function Navbar() {
 				</Link>
 
 				<Input
+					id="navbar"
 					className="flex-1"
 					value={searchText}
 					onChange={(e) => setSearchText(e.currentTarget.value)}
@@ -74,7 +75,7 @@ export function Navbar() {
 						<li key={id}>
 							<Link
 								href={`/topics/${slug}`}
-								className="text-sm font-medium text-primary-secondary hover:text-black transition-default">
+								className="text-sm font-medium text-primary-secondary hover:text-black transition-default whitespace-nowrap">
 								{title}
 							</Link>
 						</li>

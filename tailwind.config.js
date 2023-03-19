@@ -15,6 +15,12 @@ module.exports = {
 				"primary-main": "#111",
 				"primary-secondary": "#767676",
 			},
+			fontSize: {
+				md: "1rem",
+				"7xl": "5rem",
+				"8xl": "6rem",
+				"9xl": "7rem",
+			},
 		},
 		masonry: {
 			1: "1",

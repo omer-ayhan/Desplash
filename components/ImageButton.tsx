@@ -52,7 +52,9 @@ export function ImageButton({
 					/>
 				</a>
 			)}
-			<div className="invisible group-hover:visible flex gap-2 items-center  absolute bottom-4 left-4">
+			<Link
+				href={`/@${user.username}`}
+				className="invisible group-hover:visible flex gap-2 items-center  absolute bottom-4 left-4">
 				<Image
 					src={user.profile_image.medium}
 					width={35}
@@ -60,10 +62,8 @@ export function ImageButton({
 					alt={user.name}
 					className="rounded-full"
 				/>
-				<Link href="/" className="text-sm text-white/80 hover:text-white">
-					{user.name}
-				</Link>
-			</div>
+				<p className="text-sm text-white/80 hover:text-white">{user.name}</p>
+			</Link>
 		</button>
 	);
 }

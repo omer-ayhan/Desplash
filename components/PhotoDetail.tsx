@@ -75,7 +75,9 @@ export function PhotoDetail({
 	return (
 		<>
 			<div className="p-3 md:px-6  bg-white w-full flex gap-3 flex-col md:flex-row items-center justify-between">
-				<Link href="/" className="w-full  flex gap-2 items-center">
+				<Link
+					href={`/@${user.username}`}
+					className="w-full  flex gap-2 items-center">
 					<Image
 						src={user.profile_image.medium}
 						width={33}
@@ -163,7 +165,7 @@ export function PhotoDetail({
 
 				<div>
 					<Button
-						className="ml-auto text-sm !px-3 transition-bezier"
+						className="ml-auto text-sm !px-3 transition-default"
 						iconLeft={<IoMdShareAlt className="text-xl text-inherit" />}>
 						Share
 					</Button>

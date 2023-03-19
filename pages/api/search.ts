@@ -26,7 +26,6 @@ export default async function handler(
 	switch (method) {
 		case "GET":
 			try {
-				// Get data from your database
 				const { data, headers } = await axios.get(
 					`https://unsplash.com/napi/search?query=${q}&per_page=${per_page}&page=${page}&xp=search-quality-boosting%3Acontrol`
 				);
