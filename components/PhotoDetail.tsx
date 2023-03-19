@@ -19,18 +19,21 @@ interface PhotoDetailProps {
 	id: string;
 	placeholderData: PhotoDetailType;
 	children?: JSX.Element;
+	noFetch?: boolean;
 }
 
 export function PhotoDetail({
 	placeholderData,
 	id,
 	children,
+	noFetch = false,
 }: PhotoDetailProps) {
 	const { isOpen: isZoom, toggle } = useDisclosure();
 
 	const { data, isLoading } = useQuery<PhotoDetailType>(
 		`photo-detail-${id}`,
 		async () => {
+			if (noFetch) return placeholderData;
 			const { data } = await axios.get(`/api/photos/${id}`);
 			return data;
 		}
@@ -71,7 +74,7 @@ export function PhotoDetail({
 
 	return (
 		<>
-			<div className="sticky top-0 left-0 p-3 md:px-6  bg-white w-full flex gap-3 flex-col md:flex-row items-center justify-between">
+			<div className="p-3 md:px-6  bg-white w-full flex gap-3 flex-col md:flex-row items-center justify-between">
 				<Link href="/" className="w-full  flex gap-2 items-center">
 					<Image
 						src={user.profile_image.medium}
@@ -110,7 +113,7 @@ export function PhotoDetail({
 				className={cn(
 					"mx-auto w-full h-auto cursor-zoom-in",
 					width > height ? "max-w-5xl" : "max-3xl md:max-w-md",
-					isLoading ? "hidden" : ""
+					isLoading ? "invisible" : ""
 				)}
 				isLandscape={width > height}
 				style={{
@@ -198,7 +201,7 @@ export function PhotoDetail({
 				<div className="flex gap-3 items-center flex-wrap">
 					{tags.map((tag) => (
 						<Link
-							href={`/search?query=${tag.title}`}
+							href={`/s/photos/${tag.title}`}
 							key={tag.title}
 							className="bg-gray-200 text-primary-secondary hover:bg-gray-300 hover:text-primary-main p-2 text-sm capitalize transition-default !duration-200">
 							{tag.title}

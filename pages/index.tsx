@@ -266,13 +266,7 @@ export default function Home({ randomPhoto }: { randomPhoto: PhotoType }) {
 
 export async function getServerSideProps() {
 	const { data: randomPhoto } = await axios.get(
-		// getEndpoint("https://unsplash.com/napi/photos/random"),
 		"https://unsplash.com/napi/photos/random"
-		// {
-		// 	headers: {
-		// 		Authorization: `Client-ID ${process.env.UNSPLASH_ACCESS}`,
-		// 	},
-		// }
 	);
 
 	return {
