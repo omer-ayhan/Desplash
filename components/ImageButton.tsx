@@ -1,3 +1,4 @@
+import { cn } from "@/services/local";
 import { PhotoType } from "@/types/photos";
 import Image from "next/image";
 import Link from "next/link";
@@ -6,27 +7,37 @@ import { AiFillHeart, AiOutlineArrowDown } from "react-icons/ai";
 interface ImageButtonProps {
 	data: PhotoType;
 	onClick?: () => void;
+	width?: number;
+	height?: number;
+	className?: string;
 }
 export function ImageButton({
 	data: { links, id, urls, alt_description, user, premium },
+	width = 400,
+	height = 500,
+	className,
 	onClick,
 }: ImageButtonProps) {
 	return (
 		<button
 			key={id}
 			onClick={onClick}
-			className="group relative mb-3 p-0 break-inside-avoid-column cursor-zoom-in"
+			className={cn(
+				"group relative mb-3 p-0 break-inside-avoid-column",
+				className
+			)}
 			title={alt_description}>
 			<Image
 				key={id}
+				className="cursor-zoom-in"
 				src={urls.regular}
-				width={400}
-				height={500}
+				width={width}
+				height={height}
 				alt={alt_description || user.name}
 				placeholder="blur"
 				blurDataURL={urls.regular}
 			/>
-			<div className="group-hover:vignette absolute bottom-0 left-0 w-full h-full transition-default" />
+			<div className="group-hover:vignette absolute bottom-0 left-0 w-full h-full transition-default cursor-zoom-in" />
 
 			<AiFillHeart
 				className="p-2 w-11 invisible group-hover:visible absolute top-4 right-4 text-primary-secondary bg-white rounded-md hover:text-primary-main"

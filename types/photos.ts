@@ -87,6 +87,10 @@ export type PhotoDetailType = {
 	liked_by_user: boolean;
 	current_user_collections: string[];
 	sponsorship: string | null;
+	tags: {
+		type: string;
+		title: string;
+	}[];
 	user: UserType;
 };
 
