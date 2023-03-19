@@ -11,7 +11,7 @@ export function MainLayout({
 		<>
 			<Navbar />
 			<div>{children}</div>
-			{/* <Footer /> */}
+			<Footer />
 		</>
 	);
 }

@@ -97,15 +97,12 @@ export function PhotoDetail({
 							title="Add To Favorites"
 						/>
 					</Button>
-					{!premium && (
-						<Button
-							className="!py-2 text-sm"
-							onClick={() =>
-								downloadImg(urls.raw, alt_description || user.name)
-							}>
-							Download
-						</Button>
-					)}
+					<Button
+						className="!py-2 text-sm"
+						onClick={() => downloadImg(urls.raw, alt_description || user.name)}
+						disabled={premium}>
+						Download
+					</Button>
 				</div>
 			</div>
 

@@ -1,13 +1,27 @@
+import axios from "axios";
 import Link from "next/link";
 import { useRouter } from "next/router";
 import { useState } from "react";
 import { AiOutlineSearch } from "react-icons/ai";
-import { Input } from "./Forms";
+import { useQuery } from "react-query";
 
-const cats = Array.from({ length: 15 }, (_, i) => i + 1);
+import { Input } from "./Forms";
 
 export function Navbar() {
 	const router = useRouter();
+	const { data: topics, status } = useQuery<
+		{
+			id: string;
+			slug: string;
+			title: string;
+			description: string;
+		}[]
+	>("topics", async () => {
+		const { data: resTopics } = await axios.get("/api/topics");
+
+		return resTopics;
+	});
+
 	const [searchText, setSearchText] = useState<string>(
 		router.query.search as string
 	);
@@ -54,17 +68,19 @@ export function Navbar() {
 					</li>
 				</ul>
 			</div>
-			<ul className="relative p-3 flex gap-5 items-center overflow-y-hidden overflow-x-scroll scrollbar-hide">
-				{cats.map((cat) => (
-					<li key={cat}>
-						<Link
-							href={`/category/${cat}`}
-							className="text-sm font-medium text-primary-secondary hover:text-black transition-default">
-							Category {cat}
-						</Link>
-					</li>
-				))}
-			</ul>
+			{status === "success" && (
+				<ul className="relative p-3 py-4 flex gap-5 items-center overflow-y-hidden overflow-x-scroll scrollbar-hide">
+					{topics.slice(0, 10).map(({ id, slug, title }) => (
+						<li key={id}>
+							<Link
+								href={`/topics/${slug}`}
+								className="text-sm font-medium text-primary-secondary hover:text-black transition-default">
+								{title}
+							</Link>
+						</li>
+					))}
+				</ul>
+			)}
 		</nav>
 	);
 }

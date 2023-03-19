@@ -19,8 +19,24 @@ import { ImageButton } from "@/components/ImageButton";
 import { useDisclosure } from "@/hooks";
 import { PhotoDetail } from "@/components/PhotoDetail";
 import { RelatedPhotos } from "@/components/RelatedPhotos";
+import { GetServerSidePropsContext } from "next";
 
-export default function Home({ randomPhoto }: { randomPhoto: PhotoType }) {
+export default function Home({
+	initialValue,
+}: {
+	initialValue: {
+		data: PhotoType[];
+		nextId: number | null;
+		prevId: number | null;
+		heroValue: {
+			cover_photo: PhotoType;
+			title: string;
+			description: string;
+			slugs: string;
+			id: string;
+		};
+	};
+}) {
 	const { ref, inView } = useInView();
 	const router = useRouter();
 	const { isOpen, close, open } = useDisclosure();
@@ -41,7 +57,7 @@ export default function Home({ randomPhoto }: { randomPhoto: PhotoType }) {
 		},
 		AxiosError
 	>(
-		["photos"],
+		`topics-${router.query.topic}`,
 		async ({ pageParam = 1, signal }) => {
 			if (!pageParam) {
 				return {
@@ -54,7 +70,7 @@ export default function Home({ randomPhoto }: { randomPhoto: PhotoType }) {
 				data: PhotoType[];
 				nextId: number | null;
 				prevId: number | null;
-			}>(`/api/photos?per_page=12&page=${pageParam}`, {
+			}>(`/api/topics/${router.query.topic}?per_page=12&page=${pageParam}`, {
 				signal,
 			});
 
@@ -64,6 +80,16 @@ export default function Home({ randomPhoto }: { randomPhoto: PhotoType }) {
 			};
 		},
 		{
+			initialData: {
+				pageParams: [1],
+				pages: [
+					{
+						data: initialValue.data,
+						nextId: initialValue.nextId,
+						prevId: initialValue.prevId,
+					},
+				],
+			},
 			getNextPageParam: (lastPage) => lastPage.nextId,
 			onSuccess: (data) => {
 				setLatestId(data.pages.flatMap((page) => page.data).map((p) => p.id));
@@ -82,45 +108,40 @@ export default function Home({ randomPhoto }: { randomPhoto: PhotoType }) {
 			<Head>
 				<title>
 					{currentPhoto?.alt_description ||
-						"Best Free Photos & Images | Desplash"}
+						(initialValue.heroValue.title &&
+							`${initialValue.heroValue.title} | Desplash`) ||
+						"Desplash"}
 				</title>
+
+				{initialValue.heroValue.description && (
+					<meta
+						name="description"
+						content={initialValue.heroValue.description}
+					/>
+				)}
 			</Head>
 			<div>
 				<section className="relative grid gap-5 place-content-center  w-screen h-[700px] bg-blend-darken overflow-hidden">
 					<Image
-						src={randomPhoto.urls.full}
+						src={initialValue.heroValue.cover_photo.urls.full}
 						fill
 						className="-z-50 object-cover"
-						alt={randomPhoto.alt_description}
+						alt={initialValue.heroValue.cover_photo.alt_description}
 					/>
 					<div className="-z-40 absolute w-full h-full bg-primary-main/30" />
 
 					<h1 className="text-center text-5xl font-medium text-white">
-						Desplash
+						{initialValue.heroValue.title}
 					</h1>
 					<p className="mx-auto max-w-md text-center text-white text-lg">
-						The internet’s source for visuals. Powered by creators everywhere.
+						{initialValue.heroValue.description}
 					</p>
-
-					<Input
-						onKeyDown={(e) => {
-							if (e.key === "Enter") {
-								router.push(`/s/photos/${e.currentTarget.value}`);
-							}
-						}}
-						className="flex-1"
-						icon={<AiOutlineSearch size={20} className="text-gray-500 " />}
-						inputClass="w-[900px] py-3 text-primary-main placeholder:text-gray-500 text-main bg-white border-transparent focus:ring-4 focus:ring-2 focus:ring-main focus:ring-opacity-50"
-						placeholder="Search your desired photos"
-						type="text"
-						name="search"
-					/>
 					<p className="absolute bottom-5 left-5 text-sm text-white/80">
 						Photo by{" "}
 						<Link
 							href="/"
 							className="text-white/90 hover:text-white transition-default">
-							{randomPhoto.user.name}
+							{initialValue.heroValue.cover_photo.user.name}
 						</Link>
 					</p>
 				</section>
@@ -136,16 +157,21 @@ export default function Home({ randomPhoto }: { randomPhoto: PhotoType }) {
 									<Fragment key={`${page.nextId}-?${page.prevId}`}>
 										{page.data.map((data, i) => (
 											<ImageButton
-												className="break-inside-avoid"
 												key={data.id}
+												className="break-inside-avoid"
 												data={data}
 												onClick={() => {
 													setCurrentPhoto({
 														...data,
 														index: i,
 													});
-													router.replace(
-														router.pathname,
+													router.push(
+														{
+															pathname: `/topics/[topic]`,
+															query: {
+																topic: router.query.topic,
+															},
+														},
 														`/photos/${data.id}`,
 														{
 															shallow: true,
@@ -168,9 +194,13 @@ export default function Home({ randomPhoto }: { randomPhoto: PhotoType }) {
 									open={isOpen}
 									onClose={() => {
 										setCurrentPhoto(null);
-										router.replace(router.pathname, "/", {
-											shallow: true,
-										});
+										router.replace(
+											`/topics/${router.query.topic}`,
+											`/topics/${router.query.topic}`,
+											{
+												shallow: true,
+											}
+										);
 										close();
 									}}>
 									{currentPhoto && (
@@ -195,9 +225,14 @@ export default function Home({ randomPhoto }: { randomPhoto: PhotoType }) {
 												<RelatedPhotos
 													id={currentPhoto.id}
 													onPhotoClick={(photo) => {
-														router.replace(
-															router.pathname,
-															`/photos/${photo.id}`,
+														router.push(
+															{
+																pathname: `/topics/[topic]`,
+																query: {
+																	topic: router.query.topic,
+																},
+															},
+															`/photos/${currentPhoto.id}`,
 															{
 																shallow: true,
 															}
@@ -264,20 +299,30 @@ export default function Home({ randomPhoto }: { randomPhoto: PhotoType }) {
 	);
 }
 
-export async function getServerSideProps() {
-	const { data: randomPhoto } = await axios.get(
-		// getEndpoint("https://unsplash.com/napi/photos/random"),
-		"https://unsplash.com/napi/photos/random"
-		// {
-		// 	headers: {
-		// 		Authorization: `Client-ID ${process.env.UNSPLASH_ACCESS}`,
-		// 	},
-		// }
+export async function getServerSideProps({ query }: GetServerSidePropsContext) {
+	const { topic } = query;
+
+	// Get data from your database
+	const { data, headers } = await axios.get(
+		`https://unsplash.com/napi/topics/${topic}/photos?per_page=12&page=1&xp=search-quality-boosting%3Acontrol`
 	);
+
+	const { data: heroValue } = await axios.get(
+		`https://unsplash.com/napi/topics/${topic}`
+	);
+
+	const linkHeader = headers.link;
+	const hasNextLink = linkHeader?.includes('rel="next"');
+	const pageParam = Number(1);
 
 	return {
 		props: {
-			randomPhoto,
+			initialValue: {
+				data,
+				nextId: hasNextLink ? pageParam + 1 : null,
+				prevId: pageParam > 1 ? pageParam - 1 : pageParam === 1 ? 1 : null,
+				heroValue: heroValue,
+			},
 		},
 	};
 }
