@@ -70,7 +70,7 @@ export function PhotoDetail({
 	};
 
 	return (
-		<div>
+		<>
 			<div className="sticky top-0 left-0 p-3 bg-white w-full flex items-center justify-between">
 				<div className="flex gap-2 items-center">
 					<Image
@@ -181,9 +181,14 @@ export function PhotoDetail({
 						{premium ? "License: Premium" : "License: Free"}
 					</p>
 				</div>
+				<div>
+					<p className="text-md text-primary-main font-medium">
+						{alt_description}
+					</p>
+				</div>
 			</div>
 			{children}
-			<div className="mx-auto w-[85%]">
+			<div className="mx-auto w-[85%] mt-10">
 				<h4 className="mb-4">Related Photos</h4>
 				<div className="flex gap-3 items-center flex-wrap">
 					{tags.map((tag) => (
@@ -196,6 +201,6 @@ export function PhotoDetail({
 					))}
 				</div>
 			</div>
-		</div>
+		</>
 	);
 }

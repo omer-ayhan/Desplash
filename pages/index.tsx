@@ -2,12 +2,14 @@ import Head from "next/head";
 import React, { useEffect } from "react";
 import Image from "next/image";
 import Link from "next/link";
+import { useRouter } from "next/router";
 import { AiOutlineSearch } from "react-icons/ai";
+import { IoMdClose } from "react-icons/io";
 import axios, { AxiosError } from "axios";
 import { useInfiniteQuery } from "react-query";
 import { useInView } from "react-intersection-observer";
 import { Modal } from "react-responsive-modal";
-import { IoMdClose } from "react-icons/io";
+import { FaChevronLeft, FaChevronRight } from "react-icons/fa";
 
 import { PhotoType } from "@/types/photos";
 
@@ -20,6 +22,7 @@ import { RelatedPhotos } from "@/components/RelatedPhotos";
 
 export default function Home({ randomPhoto }: { randomPhoto: PhotoType }) {
 	const { ref, inView } = useInView();
+	const router = useRouter();
 	const { isOpen, close, open } = useDisclosure();
 	const [latestId, setLatestId] = React.useState<string[]>([]);
 	const [currentPhoto, setCurrentPhoto] = React.useState<PhotoType | null>(
@@ -128,12 +131,22 @@ export default function Home({ randomPhoto }: { randomPhoto: PhotoType }) {
 							<>
 								{photos.pages.map((page) => (
 									<React.Fragment key={`${page.nextId}-?${page.prevId}`}>
-										{page.data.map((data) => (
+										{page.data.map((data, i) => (
 											<ImageButton
 												key={data.id}
 												data={data}
 												onClick={() => {
-													setCurrentPhoto(data);
+													setCurrentPhoto({
+														...data,
+														index: i,
+													});
+													router.replace(
+														router.pathname,
+														`/photos/${data.id}`,
+														{
+															shallow: true,
+														}
+													);
 													open();
 												}}
 											/>
@@ -151,6 +164,9 @@ export default function Home({ randomPhoto }: { randomPhoto: PhotoType }) {
 									open={isOpen}
 									onClose={() => {
 										setCurrentPhoto(null);
+										router.replace(router.pathname, "/", {
+											shallow: true,
+										});
 										close();
 									}}>
 									{currentPhoto && (
@@ -175,10 +191,53 @@ export default function Home({ randomPhoto }: { randomPhoto: PhotoType }) {
 												<RelatedPhotos
 													id={currentPhoto.id}
 													onPhotoClick={(photo) => {
+														router.replace(
+															router.pathname,
+															`/photos/${photo.id}`,
+															{
+																shallow: true,
+															}
+														);
 														setCurrentPhoto(photo);
 													}}
 												/>
 											</PhotoDetail>
+											<button
+												type="button"
+												className="fixed top-1/2 left-7 text-white/80 hover:text-white disabled:text-white/60"
+												onClick={() => {
+													const photoArr = photos.pages.flatMap(
+														(page) => page.data
+													)[currentPhoto.index - 1];
+													setCurrentPhoto({
+														...photoArr,
+														index: currentPhoto.index - 1,
+													});
+												}}
+												disabled={currentPhoto.index === 0}>
+												<FaChevronLeft
+													className="text-inherit  transition-default"
+													size={30}
+												/>
+											</button>
+											<button
+												type="button"
+												className="fixed top-1/2 right-7 text-white/80 hover:text-white disabled:text-white/60"
+												onClick={() => {
+													const photoArr = photos.pages.flatMap(
+														(page) => page.data
+													)[currentPhoto.index + 1];
+													setCurrentPhoto({
+														...photoArr,
+														index: currentPhoto.index + 1,
+													});
+													console.log(photoArr);
+												}}>
+												<FaChevronRight
+													className="text-inherit transition-default"
+													size={30}
+												/>
+											</button>
 										</>
 									)}
 								</Modal>

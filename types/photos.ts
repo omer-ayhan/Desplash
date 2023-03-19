@@ -9,6 +9,7 @@ export type PhotoType = {
 	color: string;
 	blur_hash: string;
 	description: null | string;
+	index: number;
 	alt_description: string;
 	urls: {
 		raw: string;
