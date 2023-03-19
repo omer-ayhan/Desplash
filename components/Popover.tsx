@@ -9,6 +9,7 @@ interface PopoverProps {
 	iconStart?: JSX.Element;
 	iconEnd?: JSX.Element;
 	buttonClass?: string;
+	className?: string;
 }
 
 export function Popover({
@@ -18,6 +19,7 @@ export function Popover({
 	iconEnd,
 	children,
 	buttonClass,
+	className,
 }: PopoverProps) {
 	const { isOpen, toggle, close } = useDisclosure();
 	const ref = useRef<HTMLDivElement>(null);
@@ -28,7 +30,7 @@ export function Popover({
 	});
 
 	return (
-		<div ref={ref} className="relative">
+		<div ref={ref} className={cn("relative", className)}>
 			<button
 				type="button"
 				className={cn(
@@ -43,7 +45,7 @@ export function Popover({
 			<div
 				className={cn(
 					isOpen ? "scale-100 opacity-100" : " scale-0 opacity-0",
-					"absolute top-10 left-0 z-50 border border-gray-300 bg-white rounded-md shadow-xl transition-bezier overflow-hidden",
+					"absolute top-10 z-50 border border-gray-300 bg-white rounded-md shadow-xl transition-bezier overflow-hidden",
 					popoverClass
 				)}>
 				{children}

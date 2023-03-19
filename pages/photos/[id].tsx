@@ -32,7 +32,11 @@ export default function PhotoDetailPage({
 				</title>
 			</Head>
 			<div className="pt-1">
-				<PhotoDetail id={details.id} placeholderData={details} noFetch>
+				<PhotoDetail
+					className="sticky top-[4rem] z-40"
+					id={details.id}
+					placeholderData={details}
+					noFetch>
 					<RelatedPhotos
 						id={details.id}
 						onPhotoClick={(photo) => {

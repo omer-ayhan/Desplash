@@ -1,8 +1,11 @@
-import { cn } from "@/services/local";
+import { cn, downloadFile } from "@/services/local";
 import { PhotoType } from "@/types/photos";
 import Image from "next/image";
 import Link from "next/link";
 import { AiFillHeart, AiOutlineArrowDown } from "react-icons/ai";
+import { BiDownArrowAlt } from "react-icons/bi";
+import { FiArrowDown } from "react-icons/fi";
+import { Button } from "./Button";
 
 interface ImageButtonProps {
 	data: PhotoType;
@@ -12,16 +15,15 @@ interface ImageButtonProps {
 	className?: string;
 }
 export function ImageButton({
-	data: { links, id, urls, alt_description, user, premium },
+	data: { id, urls, alt_description, user, premium },
 	width = 400,
 	height = 500,
 	className,
 	onClick,
 }: ImageButtonProps) {
 	return (
-		<button
+		<div
 			key={id}
-			onClick={onClick}
 			className={cn(
 				"group relative mb-3 p-0 break-inside-avoid-column",
 				className
@@ -29,6 +31,7 @@ export function ImageButton({
 			title={alt_description}>
 			<Image
 				key={id}
+				// onClick={onClick}
 				className="cursor-zoom-in"
 				src={urls.regular}
 				width={width}
@@ -37,7 +40,10 @@ export function ImageButton({
 				placeholder="blur"
 				blurDataURL={urls.regular}
 			/>
-			<div className="group-hover:vignette absolute bottom-0 left-0 w-full h-full transition-default cursor-zoom-in" />
+			<div
+				onClick={onClick}
+				className="group-hover:vignette absolute bottom-0 left-0 w-full h-full transition-default cursor-zoom-in"
+			/>
 
 			<AiFillHeart
 				className="p-2 w-11 invisible group-hover:visible absolute top-4 right-4 text-primary-secondary bg-white rounded-md hover:text-primary-main"
@@ -45,12 +51,12 @@ export function ImageButton({
 				size={34}
 			/>
 			{!premium && (
-				<a href={links.download} download>
-					<AiOutlineArrowDown
-						className="invisible group-hover:visible p-2 w-11 absolute bottom-4 right-4 text-primary-secondary bg-white rounded-md hover:text-primary-main"
-						size={34}
-					/>
-				</a>
+				<button
+					type="button"
+					onClick={() => downloadFile(urls.full, user.username)}
+					className="!py-1 !px-2 invisible group-hover:visible absolute bottom-4 right-4 text-primary-secondary bg-white rounded-md hover:text-primary-main">
+					<FiArrowDown className="" size={22} />
+				</button>
 			)}
 			<Link
 				href={`/@${user.username}`}
@@ -64,6 +70,6 @@ export function ImageButton({
 				/>
 				<p className="text-sm text-white/80 hover:text-white">{user.name}</p>
 			</Link>
-		</button>
+		</div>
 	);
 }
