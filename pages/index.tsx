@@ -1,139 +1,279 @@
-import React from "react";
+import Head from "next/head";
+import React, { useEffect } from "react";
 import Image from "next/image";
 import Link from "next/link";
-import {
-	AiFillHeart,
-	AiOutlineArrowDown,
-	AiOutlineSearch,
-} from "react-icons/ai";
-import axios from "axios";
+import { useRouter } from "next/router";
+import { AiOutlineSearch } from "react-icons/ai";
+import { IoMdClose } from "react-icons/io";
+import axios, { AxiosError } from "axios";
 import { useInfiniteQuery } from "react-query";
+import { useInView } from "react-intersection-observer";
+import { Modal } from "react-responsive-modal";
+import { FaChevronLeft, FaChevronRight } from "react-icons/fa";
 
 import { PhotoType } from "@/types/photos";
 
-import { getEndpoint } from "@/services/local";
 import { Input } from "@/components/Forms";
+import { Button } from "@/components/Button";
+import { ImageButton } from "@/components/ImageButton";
+import { useDisclosure } from "@/hooks";
+import { PhotoDetail } from "@/components/PhotoDetail";
+import { RelatedPhotos } from "@/components/RelatedPhotos";
 
-export default function Home({}: { photos: PhotoType[] }) {
+export default function Home({ randomPhoto }: { randomPhoto: PhotoType }) {
+	const { ref, inView } = useInView();
+	const router = useRouter();
+	const { isOpen, close, open } = useDisclosure();
+	const [latestId, setLatestId] = React.useState<string[]>([]);
+	const [currentPhoto, setCurrentPhoto] = React.useState<PhotoType | null>(
+		null
+	);
+
 	const {
-		data: photos,
-		isLoading,
 		status,
+		data: photos,
+		error,
+		isFetchingNextPage,
 		fetchNextPage,
-		hasNextPage,
-	} = useInfiniteQuery<PhotoType[]>(
-		"infiniteCharacters",
-		async ({ pageParam = 10 }) => {
-			const { data } = await axios(
-				getEndpoint(`/photos?per_page=${pageParam}`),
-				{
-					headers: {
-						Authorization: `Client-ID wtOtTo8_YfuQm3qH39jhkriCbFgsBSoW-ct-zuL_eow`,
-					},
-				}
-			);
-			return data;
+	} = useInfiniteQuery<
+		{
+			data: PhotoType[];
+			nextId: number | null;
+			prevId: number | null;
+		},
+		AxiosError
+	>(
+		["photos"],
+		async ({ pageParam = 1, signal }) => {
+			if (!pageParam) {
+				return {
+					data: [],
+					nextId: null,
+					prevId: null,
+				};
+			}
+			const { data: photoRes } = await axios.get<{
+				data: PhotoType[];
+				nextId: number | null;
+				prevId: number | null;
+			}>(`/api/photos?per_page=12&page=${pageParam}`, {
+				signal,
+			});
+
+			return {
+				...photoRes,
+				data: photoRes.data.filter((p) => !latestId.includes(p.id)),
+			};
+		},
+		{
+			getNextPageParam: (lastPage) => lastPage.nextId,
+			onSuccess: (data) => {
+				setLatestId(data.pages.flatMap((page) => page.data).map((p) => p.id));
+			},
 		}
 	);
 
+	useEffect(() => {
+		if (inView) {
+			fetchNextPage();
+		}
+	}, [inView]);
+
 	return (
-		<div className="h-screen">
-			<section className="relative grid gap-5 place-content-center  w-screen h-3/4 bg-blend-darken overflow-hidden">
-				<Image
-					src="https://source.unsplash.com/random/1920x1080"
-					fill
-					className="-z-50 object-cover "
-					alt="Hero Image"
-				/>
-				<div className="-z-40 absolute w-full h-full bg-primary-main/30" />
+		<>
+			<Head>
+				<title>
+					{currentPhoto?.alt_description ||
+						"Best Free Photos & Images | Desplash"}
+				</title>
+			</Head>
+			<div>
+				<section className="relative grid gap-5 place-content-center  w-screen h-[700px] bg-blend-darken overflow-hidden">
+					<Image
+						src={randomPhoto.urls.full}
+						fill
+						className="-z-50 object-cover"
+						alt={randomPhoto.alt_description}
+					/>
+					<div className="-z-40 absolute w-full h-full bg-primary-main/30" />
 
-				<h1 className="text-center text-5xl font-medium text-white">
-					Desplash
-				</h1>
-				<p className="mx-auto max-w-md text-center text-white text-lg">
-					Lorem ipsum dolor sit amet, consectetur adipisicing elit. Et porro
-					tenetur aliquid suscipit itaque ut, quos cumque sed alias officiis.
-				</p>
+					<h1 className="text-center text-5xl font-medium text-white">
+						Desplash
+					</h1>
+					<p className="mx-auto max-w-md text-center text-white text-lg">
+						The internet’s source for visuals. Powered by creators everywhere.
+					</p>
 
-				<Input
-					className="flex-1 "
-					icon={<AiOutlineSearch size={20} className="text-gray-500 " />}
-					inputClass="w-[900px] py-3 text-primary-main placeholder:text-gray-500 text-main bg-white border-transparent focus:ring-4 focus:ring-2 focus:ring-main focus:ring-opacity-50"
-					placeholder="Search your desired photos"
-					type="text"
-					name="search"
-				/>
-				<p className="absolute bottom-5 left-5 text-sm text-white/80">
-					Photo by{" "}
-					<Link
-						href="/"
-						className="text-white/90 hover:text-white transition-default">
-						Tino Rischawy
-					</Link>
-				</p>
-			</section>
+					<Input
+						className="flex-1 "
+						icon={<AiOutlineSearch size={20} className="text-gray-500 " />}
+						inputClass="w-[900px] py-3 text-primary-main placeholder:text-gray-500 text-main bg-white border-transparent focus:ring-4 focus:ring-2 focus:ring-main focus:ring-opacity-50"
+						placeholder="Search your desired photos"
+						type="text"
+						name="search"
+					/>
+					<p className="absolute bottom-5 left-5 text-sm text-white/80">
+						Photo by{" "}
+						<Link
+							href="/"
+							className="text-white/90 hover:text-white transition-default">
+							{randomPhoto.user.name}
+						</Link>
+					</p>
+				</section>
+				<section className="my-10 mx-auto max-w-6xl masonry-col-3 masonry-gap-3 transition-default">
+					{status === "loading" ? (
+						<p>Loading...</p>
+					) : status === "error" ? (
+						<span>Error: {error.message} </span>
+					) : (
+						status === "success" && (
+							<>
+								{photos.pages.map((page) => (
+									<React.Fragment key={`${page.nextId}-?${page.prevId}`}>
+										{page.data.map((data, i) => (
+											<ImageButton
+												key={data.id}
+												data={data}
+												onClick={() => {
+													setCurrentPhoto({
+														...data,
+														index: i,
+													});
+													router.replace(
+														router.pathname,
+														`/photos/${data.id}`,
+														{
+															shallow: true,
+														}
+													);
+													open();
+												}}
+											/>
+										))}
+									</React.Fragment>
+								))}
+								<Modal
+									classNames={{
+										modal:
+											"!my-10 md:!my-5 !mx-0 lg:!mx-5 !p-6 relative overflow-x-hidden !overflow-y-auto !w-screen md:!max-w-3xl lg:!max-w-5xl xl:!max-w-[calc(100%-10rem)] rounded-md",
+										closeButton: "hidden",
+										closeIcon: "hidden",
+									}}
+									center
+									open={isOpen}
+									onClose={() => {
+										setCurrentPhoto(null);
+										router.replace(router.pathname, "/", {
+											shallow: true,
+										});
+										close();
+									}}>
+									{currentPhoto && (
+										<>
+											<IoMdClose
+												className="fixed top-2 left-2 text-white/80 hover:text-white transition-default cursor-pointer"
+												onClick={close}
+												size={25}
+											/>
 
-			<section className=" my-10 mx-auto max-w-6xl masonry-col-3 masonry-gap-3">
-				{photos?.pages
-					.flat()
-					.map(({ links, id, urls, alt_description, user }) => (
-						<button
-							key={id}
-							className="group relative mb-3 p-0"
-							title={alt_description}>
-							<Image
-								key={id}
-								src={urls.regular}
-								width={400}
-								height={500}
-								alt={alt_description || user.name}
-								placeholder="blur"
-								blurDataURL={urls.thumb}
-							/>
-							<div className="group-hover:vignette absolute bottom-0 left-0 w-full h-full transition-default" />
-
-							<AiFillHeart
-								className="p-2 w-11 invisible group-hover:visible absolute top-4 right-4 text-primary-secondary bg-white rounded-md hover:text-primary-main"
-								title="Add To Favorites"
-								size={34}
-							/>
-							<a href={links.download} download>
-								<AiOutlineArrowDown
-									className="invisible group-hover:visible p-2 w-11 absolute bottom-4 right-4 text-primary-secondary bg-white rounded-md hover:text-primary-main"
-									size={34}
-								/>
-							</a>
-							<div className="invisible group-hover:visible flex gap-2 items-center  absolute bottom-4 left-4">
-								<Image
-									src={user.profile_image.medium}
-									width={35}
-									height={35}
-									alt={user.name}
-									className="rounded-full"
-								/>
-								<Link
-									href="/"
-									className="text-sm text-white/80 hover:text-white">
-									{user.name}
-								</Link>
-							</div>
-						</button>
-					))}
-			</section>
-		</div>
+											<PhotoDetail
+												id={currentPhoto.id}
+												placeholderData={{
+													...currentPhoto,
+													views: null,
+													downloads: null,
+													topics: [],
+													location: {},
+													exif: {},
+													tags: [],
+												}}>
+												<RelatedPhotos
+													id={currentPhoto.id}
+													onPhotoClick={(photo) => {
+														router.replace(
+															router.pathname,
+															`/photos/${photo.id}`,
+															{
+																shallow: true,
+															}
+														);
+														setCurrentPhoto(photo);
+													}}
+												/>
+											</PhotoDetail>
+											<button
+												type="button"
+												className="fixed top-1/2 left-7 text-white/80 hover:text-white disabled:text-white/60"
+												onClick={() => {
+													const photoArr = photos.pages.flatMap(
+														(page) => page.data
+													)[currentPhoto.index - 1];
+													setCurrentPhoto({
+														...photoArr,
+														index: currentPhoto.index - 1,
+													});
+												}}
+												disabled={currentPhoto.index === 0}>
+												<FaChevronLeft
+													className="text-inherit  transition-default"
+													size={30}
+												/>
+											</button>
+											<button
+												type="button"
+												className="fixed top-1/2 right-7 text-white/80 hover:text-white disabled:text-white/60"
+												onClick={() => {
+													const photoArr = photos.pages.flatMap(
+														(page) => page.data
+													)[currentPhoto.index + 1];
+													setCurrentPhoto({
+														...photoArr,
+														index: currentPhoto.index + 1,
+													});
+													console.log(photoArr);
+												}}>
+												<FaChevronRight
+													className="text-inherit transition-default"
+													size={30}
+												/>
+											</button>
+										</>
+									)}
+								</Modal>
+							</>
+						)
+					)}
+				</section>
+				{status === "success" && (
+					<div ref={ref}>
+						<Button
+							className="mx-auto my-5"
+							onClick={() => fetchNextPage()}
+							loading={isFetchingNextPage}>
+							Load More
+						</Button>
+					</div>
+				)}
+			</div>
+		</>
 	);
 }
 
 export async function getServerSideProps() {
-	const { data: photos } = await axios.get(getEndpoint("/photos"), {
-		headers: {
-			Authorization: `Client-ID ${process.env.UNSPLASH_ACCESS}`,
-		},
-	});
+	const { data: randomPhoto } = await axios.get(
+		// getEndpoint("https://unsplash.com/napi/photos/random"),
+		"https://unsplash.com/napi/photos/random"
+		// {
+		// 	headers: {
+		// 		Authorization: `Client-ID ${process.env.UNSPLASH_ACCESS}`,
+		// 	},
+		// }
+	);
 
 	return {
 		props: {
-			photos,
+			randomPhoto,
 		},
 	};
 }

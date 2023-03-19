@@ -53,7 +53,7 @@ export function RadioGroup({
               before:w-6 before:h-6 before:bg-primary-main before:scale-0 before:checked:scale-100 before:border-0
                before:transition-default before:transform before:origin-center before:absolute before:top-1/2 before:left-1/2 before:-translate-x-1/2 before:-translate-y-1/2 before:rounded-full
                disabled:text-gray-medium disabled:cursor-not-allowed disabled:border-gray-medium
-               disabled:before:bg-gray-medium disabled:cursor-not-allowed disabled:before:scale-0
+               disabled:before:bg-gray-medium disabled:before:scale-0
                "
 							onChange={() => onChange?.(name, value)}
 							onBlur={onBlur}
