@@ -25,7 +25,7 @@ export function Navbar() {
 					onChange={(e) => setSearchText(e.currentTarget.value)}
 					onKeyDown={(e) => {
 						if (e.key === "Enter") {
-							router.push(`/s/${e.currentTarget.value}`);
+							router.push(`/s/photos/${e.currentTarget.value}`);
 						}
 					}}
 					icon={<AiOutlineSearch size={20} className="text-gray-500 " />}

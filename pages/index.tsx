@@ -105,7 +105,7 @@ export default function Home({ randomPhoto }: { randomPhoto: PhotoType }) {
 					<Input
 						onKeyDown={(e) => {
 							if (e.key === "Enter") {
-								router.push(`/s/${e.currentTarget.value}`);
+								router.push(`/s/photos/${e.currentTarget.value}`);
 							}
 						}}
 						className="flex-1"

@@ -136,7 +136,7 @@ export default function SearchPhoto({
 								className="p-3 px-5 border border-gay-300 text-primary-secondary text-sm 
 								hover:border-primary-secondary hover:text-primary-main
 								font-medium capitalize rounded-md transition-default"
-								href={`/s/${related.title.replace(/ /gi, "-")}`}
+								href={`/s/photos/${related.title.replace(/ /gi, "-")}`}
 								key={related.title}>
 								{related.title}
 							</Link>
@@ -164,7 +164,7 @@ export default function SearchPhoto({
 													});
 													router.push(
 														{
-															pathname: `/s/[search]`,
+															pathname: `/s/photos/[search]`,
 															query: {
 																search: router.query.search,
 															},
@@ -192,8 +192,8 @@ export default function SearchPhoto({
 									onClose={() => {
 										setCurrentPhoto(null);
 										router.replace(
-											`/s/${router.query.search}`,
-											`/s/${router.query.search}`,
+											`/s/photos/${router.query.search}`,
+											`/s/photos/${router.query.search}`,
 											{
 												shallow: true,
 											}
@@ -224,7 +224,7 @@ export default function SearchPhoto({
 													onPhotoClick={(photo) => {
 														router.push(
 															{
-																pathname: `/s/[search]`,
+																pathname: `/s/photos/[search]`,
 																query: {
 																	search: router.query.search,
 																},
