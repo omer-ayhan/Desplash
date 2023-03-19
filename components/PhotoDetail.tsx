@@ -15,25 +15,15 @@ import { FiCamera } from "react-icons/fi";
 import { Tooltip } from "./Forms";
 
 interface PhotoDetailProps {
-	// detailData: PhotoType;
 	id: string;
 	placeholderData: PhotoDetailType;
+	children?: JSX.Element;
 }
 
 export function PhotoDetail({
-	// detailData: {
-	// 	user,
-	// 	urls,
-	// 	alt_description,
-	// 	width,
-	// 	height,
-	// 	created_at,
-	// 	premium,
-	// 	blur_hash,
-	// 	likes,
-	// },
 	placeholderData,
 	id,
+	children,
 }: PhotoDetailProps) {
 	const { isOpen: isZoom, toggle } = useDisclosure();
 	const { data, isLoading } = useQuery<PhotoDetailType>(
@@ -60,6 +50,7 @@ export function PhotoDetail({
 		topics,
 		downloads,
 		views,
+		tags,
 	} = resData;
 
 	const publishDate = new Intl.DateTimeFormat("en-US", {
@@ -124,7 +115,7 @@ export function PhotoDetail({
 					zoom: isZoom ? 2 : 1,
 				}}
 				onClick={toggle}
-				src={urls.raw}
+				src={urls.full}
 				width="0"
 				height="0"
 				sizes="100vw"
@@ -184,6 +175,20 @@ export function PhotoDetail({
 						<BsShieldCheck className="inline-block" />{" "}
 						{premium ? "License: Premium" : "License: Free"}
 					</p>
+				</div>
+			</div>
+			{children}
+			<div className="mx-auto w-[85%]">
+				<h4 className="mb-4">Related Photos</h4>
+				<div className="flex gap-3 items-center flex-wrap">
+					{tags.map((tag) => (
+						<Link
+							href={`/search?query=${tag.title}`}
+							key={tag.title}
+							className="bg-gray-200 text-primary-secondary hover:bg-gray-300 hover:text-primary-main p-2 text-sm capitalize transition-default !duration-200">
+							{tag.title}
+						</Link>
+					))}
 				</div>
 			</div>
 		</div>

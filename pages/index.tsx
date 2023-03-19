@@ -15,6 +15,7 @@ import { Button } from "@/components/Button";
 import { ImageButton } from "@/components/ImageButton";
 import { useDisclosure } from "@/hooks";
 import { PhotoDetail } from "@/components/PhotoDetail";
+import { RelatedPhotos } from "@/components/RelatedPhotos";
 
 export default function Home({ randomPhoto }: { randomPhoto: PhotoType }) {
 	const { ref, inView } = useInView();
@@ -134,10 +135,11 @@ export default function Home({ randomPhoto }: { randomPhoto: PhotoType }) {
 							<Modal
 								classNames={{
 									modal:
-										"!my-10 md:!my-5 !mx-0 lg:!mx-5 relative overflow-x-hidden !overflow-y-auto !w-screen md:!max-w-3xl lg:!max-w-5xl xl:!max-w-[calc(100%-10rem)] rounded-md",
+										"!my-10 md:!my-5 !mx-0 lg:!mx-5 !p-6 relative overflow-x-hidden !overflow-y-auto !w-screen md:!max-w-3xl lg:!max-w-5xl xl:!max-w-[calc(100%-10rem)] rounded-md",
 									closeButton: "hidden",
 									closeIcon: "hidden",
 								}}
+								center
 								open={isOpen}
 								onClose={close}>
 								{currentPhoto && (
@@ -149,7 +151,6 @@ export default function Home({ randomPhoto }: { randomPhoto: PhotoType }) {
 										/>
 
 										<PhotoDetail
-											//  detailData={currentPhoto}
 											id={currentPhoto.id}
 											placeholderData={{
 												...currentPhoto,
@@ -158,8 +159,10 @@ export default function Home({ randomPhoto }: { randomPhoto: PhotoType }) {
 												topics: [],
 												location: {},
 												exif: {},
-											}}
-										/>
+												tags: [],
+											}}>
+											<RelatedPhotos id={currentPhoto.id} />
+										</PhotoDetail>
 									</>
 								)}
 							</Modal>
