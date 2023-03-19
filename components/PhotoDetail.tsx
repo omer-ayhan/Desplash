@@ -125,7 +125,7 @@ export function PhotoDetail({
 				height="0"
 				sizes="100vw"
 				placeholder="blur"
-				blurDataURL={`data:image/svg+xml;base64,${blur_hash}`}
+				blurDataURL={`data:image/jpg;base64,${blur_hash}`}
 				alt={alt_description || user.name}
 			/>
 
