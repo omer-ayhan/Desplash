@@ -2,6 +2,8 @@ import Head from "next/head";
 import React, { useEffect } from "react";
 import { useRouter } from "next/router";
 import { IoMdClose } from "react-icons/io";
+import { GetServerSidePropsContext } from "next";
+import Link from "next/link";
 import axios, { AxiosError } from "axios";
 import { useInfiniteQuery } from "react-query";
 import { useInView } from "react-intersection-observer";
@@ -9,14 +11,12 @@ import { Modal } from "react-responsive-modal";
 import { FaChevronLeft, FaChevronRight } from "react-icons/fa";
 
 import { PhotoType } from "@/types/photos";
-
-import { Button } from "@/components/Button";
-import { ImageButton } from "@/components/ImageButton";
 import { useDisclosure } from "@/hooks";
+
+import { Button } from "@/ui";
+import { ImageButton } from "@/components/ImageButton";
 import { PhotoDetail } from "@/components/PhotoDetail";
 import { RelatedPhotos } from "@/components/RelatedPhotos";
-import { GetServerSidePropsContext } from "next";
-import Link from "next/link";
 
 export default function SearchPhoto({
 	initialData,

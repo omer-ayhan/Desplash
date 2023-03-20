@@ -8,6 +8,7 @@ module.exports = {
 		"./public/**/*.{js,ts,jsx,tsx}",
 		"./styles/**/*.{js,ts,jsx,tsx}",
 		"./layouts/**/*.{js,ts,jsx,tsx}",
+		"./ui/**/*.{js,ts,jsx,tsx}",
 	],
 	theme: {
 		extend: {
@@ -44,7 +45,7 @@ module.exports = {
 		plugin(function ({ matchUtilities, addBase, addUtilities, theme }) {
 			addBase({
 				"body > *": {
-					color: theme("colors.main"),
+					color: theme("colors.primary-main"),
 				},
 				h1: {
 					fontSize: theme("fontSize.4xl"),
@@ -104,7 +105,6 @@ module.exports = {
 
 				".link-default": {
 					color: theme("colors.primary-secondary"),
-					fontSize: theme("fontSize.md"),
 					"&:hover": {
 						color: theme("colors.primary-main"),
 					},

@@ -1,6 +1,6 @@
 import Link from "next/link";
 import React from "react";
-import { Divider } from "./Divider";
+import { Divider } from "../ui/Divider";
 
 export function Footer() {
 	return (

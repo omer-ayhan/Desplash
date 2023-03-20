@@ -1,11 +1,10 @@
-import { cn, downloadFile } from "@/services/local";
-import { PhotoType } from "@/types/photos";
 import Image from "next/image";
 import Link from "next/link";
-import { AiFillHeart, AiOutlineArrowDown } from "react-icons/ai";
-import { BiDownArrowAlt } from "react-icons/bi";
+import { AiFillHeart } from "react-icons/ai";
 import { FiArrowDown } from "react-icons/fi";
-import { Button } from "./Button";
+
+import { cn, downloadFile } from "@/services/local";
+import { PhotoType } from "@/types/photos";
 
 interface ImageButtonProps {
 	data: PhotoType;
@@ -31,7 +30,6 @@ export function ImageButton({
 			title={alt_description}>
 			<Image
 				key={id}
-				// onClick={onClick}
 				className="cursor-zoom-in"
 				src={urls.regular}
 				width={width}
@@ -46,7 +44,7 @@ export function ImageButton({
 			/>
 
 			<AiFillHeart
-				className="p-2 w-11 invisible group-hover:visible absolute top-4 right-4 text-primary-secondary bg-white rounded-md hover:text-primary-main"
+				className="p-2 w-11 invisible group-hover:visible absolute top-4 right-4 text-primary-secondary bg-white rounded-md hover:text-primary-main cursor-pointer"
 				title="Add To Favorites"
 				size={34}
 			/>
@@ -59,7 +57,7 @@ export function ImageButton({
 				</button>
 			)}
 			<Link
-				href={`/@${user.username}`}
+				href={`/u/@${user.username}`}
 				className="invisible group-hover:visible flex gap-2 items-center  absolute bottom-4 left-4">
 				<Image
 					src={user.profile_image.medium}

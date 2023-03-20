@@ -25,7 +25,7 @@ export function Button({
 			ref={ref}
 			type="button"
 			className={cn(
-				"group max-w-xs flex items-center gap-2 justify-center py-2 px-5 disabled:opacity-60 text-primary-secondary text-md font-medium bg-white border border-gray-300 hover:text-primary-main hover:border-primary-secondary disabled:border-gray-400 disabled:text-primary-secondary  rounded-md transition-default disabled:cursor-not-allowed",
+				"group max-w-xs flex items-center gap-2 justify-center py-2 px-5 disabled:opacity-60 text-primary-secondary text-md font-medium border border-gray-300 hover:text-primary-main hover:border-primary-secondary disabled:border-gray-400 disabled:text-primary-secondary  rounded-md transition-default disabled:cursor-not-allowed",
 				className
 			)}
 			disabled={disabled || loading}

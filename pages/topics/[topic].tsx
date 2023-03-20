@@ -1,9 +1,9 @@
 import Head from "next/head";
 import { Fragment, useEffect, useState } from "react";
 import Image from "next/image";
+import { GetServerSidePropsContext } from "next";
 import Link from "next/link";
 import { useRouter } from "next/router";
-import { AiOutlineSearch } from "react-icons/ai";
 import { IoMdClose } from "react-icons/io";
 import axios, { AxiosError } from "axios";
 import { useInfiniteQuery } from "react-query";
@@ -12,14 +12,12 @@ import { Modal } from "react-responsive-modal";
 import { FaChevronLeft, FaChevronRight } from "react-icons/fa";
 
 import { PhotoType } from "@/types/photos";
-
-import { Input } from "@/components/Forms";
-import { Button } from "@/components/Button";
-import { ImageButton } from "@/components/ImageButton";
 import { useDisclosure } from "@/hooks";
+
+import { Button } from "@/ui";
+import { ImageButton } from "@/components/ImageButton";
 import { PhotoDetail } from "@/components/PhotoDetail";
 import { RelatedPhotos } from "@/components/RelatedPhotos";
-import { GetServerSidePropsContext } from "next";
 
 export default function Home({
 	initialValue,

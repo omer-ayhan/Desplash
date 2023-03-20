@@ -1,12 +1,12 @@
 import axios from "axios";
+import { useRouter } from "next/router";
+import Head from "next/head";
 
 import { PhotoDetailType, PhotoType } from "@/types/photos";
 
 import { PhotoDetail } from "@/components/PhotoDetail";
 import { GetServerSidePropsContext } from "next";
 import { RelatedPhotos } from "@/components/RelatedPhotos";
-import { useRouter } from "next/router";
-import Head from "next/head";
 
 interface PhotoDetailPageProps {
 	details: PhotoDetailType;
