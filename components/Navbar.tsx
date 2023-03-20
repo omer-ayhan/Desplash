@@ -1,8 +1,12 @@
+import { useMainStore } from "@/services/local/store";
+import { Divider, Popover } from "@/ui";
+import { Avatar } from "@/ui/Avatar";
 import axios from "axios";
 import Link from "next/link";
 import { useRouter } from "next/router";
 import { useState } from "react";
 import { AiOutlineSearch } from "react-icons/ai";
+import { MdFavorite } from "react-icons/md";
 import { useQuery } from "react-query";
 
 import { Input } from "../ui/Forms";
@@ -11,6 +15,11 @@ const routesToHide = ["/u/[user]", "/photos/[id]"];
 
 export function Navbar() {
 	const router = useRouter();
+	const { user, signOut } = useMainStore((state) => ({
+		user: state.user,
+		signOut: state.signOut,
+	}));
+
 	const { data: topics, status } = useQuery<
 		{
 			id: string;
@@ -51,25 +60,54 @@ export function Navbar() {
 					type="text"
 					name="search"
 				/>
-				<ul className="flex gap-2 items-center">
-					<li>
+				{user?.uid ? (
+					<>
 						<Link
-							href="/login"
-							className="text-primary-secondary hover:text-black transition-default">
-							Log in
+							href="/favorites"
+							className="p-2 border border-gray-300 hover:border-primary-main text-primary-secondary hover:text-primary-main transition-default rounded-full"
+							title="Your favorites">
+							<MdFavorite size={20} />
 						</Link>
-					</li>
-					<li>
-						<span className="text-primary-secondary">/</span>
-					</li>
-					<li>
-						<Link
-							href="/join"
-							className=" text-primary-secondary hover:text-black transition-default">
-							Join Desplash
-						</Link>
-					</li>
-				</ul>
+						<Popover
+							buttonClass="!py-0 !pl-0 h-full rounded-l-none transition-default"
+							popoverClass="w-60 right-0 !top-14 py-1 rounded-md shadow-md"
+							iconStart={<Avatar alt={user.first_name || user.username} />}>
+							<ul className="flex flex-col py-2">
+								<li className="p-3 py-3 text-primary-secondary hover:bg-gray-200 hover:text-black transition-default cursor-pointer">
+									<Link href="/u/edit-profile" className="text-inherit text-sm">
+										Edit profile
+									</Link>
+								</li>
+								<Divider className="my-2" />
+								<li
+									onClick={signOut}
+									className="p-3 py-3 text-sm text-primary-secondary hover:bg-gray-200 hover:text-black transition-default cursor-pointer">
+									Log out @{user.username}
+								</li>
+							</ul>
+						</Popover>
+					</>
+				) : (
+					<ul className="flex gap-2 items-center">
+						<li>
+							<Link
+								href="/login"
+								className="text-primary-secondary hover:text-black transition-default">
+								Log in
+							</Link>
+						</li>
+						<li>
+							<span className="text-primary-secondary">/</span>
+						</li>
+						<li>
+							<Link
+								href="/join"
+								className=" text-primary-secondary hover:text-black transition-default">
+								Join Desplash
+							</Link>
+						</li>
+					</ul>
+				)}
 			</div>
 			{status === "success" && !routesToHide.includes(router.pathname) && (
 				<ul className="relative p-3 py-4 flex gap-5 items-center overflow-y-hidden overflow-x-scroll scrollbar-hide">

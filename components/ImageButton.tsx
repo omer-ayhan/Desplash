@@ -5,6 +5,7 @@ import { FiArrowDown } from "react-icons/fi";
 
 import { cn, downloadFile } from "@/services/local";
 import { PhotoType } from "@/types/photos";
+import { useMainStore } from "@/services/local/store";
 
 interface ImageButtonProps {
 	data: PhotoType;
@@ -14,12 +15,29 @@ interface ImageButtonProps {
 	className?: string;
 }
 export function ImageButton({
-	data: { id, urls, alt_description, user, premium },
+	data,
 	width = 400,
 	height = 500,
 	className,
 	onClick,
 }: ImageButtonProps) {
+	const { id, urls, alt_description, user, premium } = data;
+	const { currUser, setModal } = useMainStore((store) => ({
+		currUser: store.user,
+		setModal: store.setLoginModal,
+	}));
+
+	const handleLike = () => {
+		if (!currUser?.uid) {
+			setModal({
+				isOpen: true,
+				img: urls.regular,
+			});
+		} else {
+			console.log("liked");
+		}
+	};
+
 	return (
 		<div
 			key={id}
@@ -44,6 +62,7 @@ export function ImageButton({
 			/>
 
 			<AiFillHeart
+				onClick={handleLike}
 				className="p-2 w-11 invisible group-hover:visible absolute top-4 right-4 text-primary-secondary bg-white rounded-md hover:text-primary-main cursor-pointer"
 				title="Add To Favorites"
 				size={34}
@@ -52,7 +71,7 @@ export function ImageButton({
 				<button
 					type="button"
 					onClick={() => downloadFile(urls.full, user.username)}
-					className="!py-1 !px-2 invisible group-hover:visible absolute bottom-4 right-4 text-primary-secondary bg-white rounded-md hover:text-primary-main">
+					className="!py-2 !px-2 invisible group-hover:visible absolute bottom-4 right-4 text-primary-secondary bg-white rounded-md hover:text-primary-main">
 					<FiArrowDown className="" size={22} />
 				</button>
 			)}

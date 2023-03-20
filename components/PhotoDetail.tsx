@@ -22,6 +22,7 @@ import { cn, downloadFile } from "@/services/local";
 
 import { Button, Divider, Popover } from "@/ui";
 import { NextImage } from "./NextImage";
+import { useMainStore } from "@/services/local/store";
 
 interface PhotoDetailProps {
 	id: string;
@@ -40,6 +41,10 @@ export function PhotoDetail({
 }: PhotoDetailProps) {
 	const { isOpen: isZoom, toggle } = useDisclosure();
 	const [isCopied, setIsCopied] = useState(false);
+	const { currUser, setModal } = useMainStore((store) => ({
+		currUser: store.user,
+		setModal: store.setLoginModal,
+	}));
 
 	const { data, isLoading } = useQuery<PhotoDetailType>(
 		`photo-detail-${id}`,
@@ -49,6 +54,17 @@ export function PhotoDetail({
 			return data;
 		}
 	);
+
+	const handleLike = () => {
+		if (!currUser?.uid) {
+			setModal({
+				isOpen: true,
+				img: urls.regular,
+			});
+		} else {
+			console.log("liked");
+		}
+	};
 
 	const resData = data || placeholderData;
 
@@ -109,8 +125,11 @@ export function PhotoDetail({
 					</div>
 				</Link>
 				<div className="w-full flex gap-2 items-center justify-between md:justify-end">
-					<Button className="px-2 py-2 text-xl text-primary-secondary hover:text-primary-main bg-white transition-default rounded-md cursor-pointer">
-						<AiFillHeart title="Add To Favorites" />
+					<Button
+						onClick={handleLike}
+						className="px-2 py-2 text-xl text-primary-secondary hover:text-primary-main bg-white transition-default rounded-md cursor-pointer"
+						title="Add To Favorites">
+						<AiFillHeart />
 					</Button>
 					<div className="flex items-stretch">
 						<Button
@@ -122,13 +141,13 @@ export function PhotoDetail({
 							Download Free
 						</Button>
 						<Popover
-							label=""
 							buttonClass="bg-green-400 hover:bg-green-500 h-full rounded-l-none transition-default
 							"
 							popoverClass="w-60 right-0 py-2 !bg-primary-main !border-primary-main text-white rounded-md shadow-md"
 							iconStart={
 								<FaChevronDown className="text-white transition-default" />
-							}>
+							}
+							disabled={premium}>
 							<ul className="w-full">
 								<li
 									className="text-end text-sm px-3 py-2  hover:bg-primary-secondary/50 transition-default cursor-pointer"
