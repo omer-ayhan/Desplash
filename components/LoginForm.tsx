@@ -1,34 +1,57 @@
-import { userTable } from "@/services/local/db.config";
-import { loginModel } from "@/services/local/yupModels";
-import { Button, Input } from "@/ui";
-import { useFormik } from "formik";
 import Link from "next/link";
 import { useRouter } from "next/router";
+import { FormikHelpers, useFormik } from "formik";
 
-export function LoginForm() {
+import { userTable } from "@/services/local/db.config";
+import { useMainStore } from "@/services/local/store";
+import { loginModel } from "@/services/local/yupModels";
+import { LoginFormType } from "@/types/yup";
+
+import { Button, Input } from "@/ui";
+import { cn } from "@/services/local";
+
+export function LoginForm({ className }: { className?: string }) {
 	const router = useRouter();
+	const setUser = useMainStore((state) => state.setUser);
 
-	const { getFieldProps, handleSubmit, errors, touched } = useFormik({
-		initialValues: loginModel.initials,
-		validationSchema: loginModel.schema,
-		onSubmit: async (values) => {
-			try {
-				const user = await userTable.get({
-					email: values.email,
-					password: values.password,
-				});
-				if (!user) throw new Error("User not found");
-				console.log(user);
-				router.push("/login");
-			} catch (error) {
-				console.log(error);
-			}
-		},
-	});
+	const handleLogin = async (
+		values: LoginFormType,
+		{ setSubmitting, resetForm }: FormikHelpers<LoginFormType>
+	) => {
+		setSubmitting(true);
+		try {
+			const user = await userTable.get(values);
+
+			if (!user) throw new Error("User not found");
+			setUser({
+				email: user.email,
+				username: user.username,
+				first_name: user.first_name,
+				last_name: user.last_name,
+				uid: user.uid,
+			});
+			resetForm();
+			router.push("/");
+		} catch (error) {
+			console.log(error);
+		} finally {
+			setSubmitting(false);
+		}
+	};
+
+	const { getFieldProps, handleSubmit, errors, touched, isSubmitting } =
+		useFormik({
+			initialValues: loginModel.initials,
+			validationSchema: loginModel.schema,
+			onSubmit: handleLogin,
+		});
 	return (
 		<form
 			onSubmit={handleSubmit}
-			className="mx-auto max-w-md h-full flex gap-7 flex-col justify-center">
+			className={cn(
+				"mx-auto max-w-md h-full flex gap-7 flex-col justify-center",
+				className
+			)}>
 			<div className="flex flex-col gap-2 items-center">
 				<Link href="/">
 					<h1 className="font-bold text-center">Desplash</h1>
@@ -59,7 +82,10 @@ export function LoginForm() {
 				error={errors.password}
 				touched={touched.password}
 			/>
-			<Button type="submit" className="!max-w-none bg-primary-main !text-white">
+			<Button
+				type="submit"
+				className="!max-w-none bg-primary-main !text-white"
+				loading={isSubmitting}>
 				Login
 			</Button>
 

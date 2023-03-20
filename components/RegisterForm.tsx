@@ -15,10 +15,17 @@ export function RegisterForm() {
 			onSubmit: async (values, { resetForm, setSubmitting }) => {
 				setSubmitting(true);
 				try {
-					const userExists = await userTable.get({
+					const emailExists = await userTable.get({
 						email: values.email,
 					});
-					if (userExists) throw new Error("User already exists");
+					const userNameExists = await userTable.get({
+						username: values.username,
+					});
+					if (emailExists)
+						throw new Error("User with this email already exists");
+					if (userNameExists)
+						throw new Error("User with this username already exists");
+
 					const id = await userTable.add({
 						...values,
 						uid: nanoid(),

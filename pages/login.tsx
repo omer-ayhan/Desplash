@@ -9,7 +9,7 @@ export default function Login() {
 				<title>Login | Desplash</title>
 			</Head>
 			<div className="h-screen">
-				<LoginForm />
+				<LoginForm className="max-w-md" />
 			</div>
 		</>
 	);

@@ -5,11 +5,12 @@ import React, { useRef } from "react";
 interface PopoverProps {
 	popoverClass?: string;
 	children: JSX.Element | JSX.Element[];
-	label: string;
+	label?: string | JSX.Element;
 	iconStart?: JSX.Element;
 	iconEnd?: JSX.Element;
 	buttonClass?: string;
 	className?: string;
+	disabled?: boolean;
 }
 
 export function Popover({
@@ -20,6 +21,7 @@ export function Popover({
 	children,
 	buttonClass,
 	className,
+	disabled = false,
 }: PopoverProps) {
 	const { isOpen, toggle, close } = useDisclosure();
 	const ref = useRef<HTMLDivElement>(null);
@@ -35,9 +37,13 @@ export function Popover({
 				type="button"
 				className={cn(
 					"p-2 px-3 text-primary-secondary flex gap-1 items-center hover:border-gray-300 hover:text-primary-main rounded-md transition-default",
+					disabled
+						? "cursor-not-allowed disabled:opacity-50"
+						: "cursor-pointer",
 					buttonClass
 				)}
-				onClick={toggle}>
+				onClick={toggle}
+				disabled={disabled}>
 				{iconStart}
 				{label}
 				{iconEnd}
