@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { MouseEvent, useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { FiCamera } from "react-icons/fi";
@@ -8,18 +8,29 @@ import axios from "axios";
 import { BsCalendar, BsShieldCheck } from "react-icons/bs";
 import { IoMdShareAlt } from "react-icons/io";
 import { HiOutlineLocationMarker } from "react-icons/hi";
+import {
+	FaChevronDown,
+	FaEnvelope,
+	FaFacebook,
+	FaPinterest,
+	FaTwitter,
+} from "react-icons/fa";
 
 import { PhotoDetailType } from "@/types/photos";
-import { cn } from "@/services/local";
 import { useDisclosure } from "@/hooks";
+import { cn, downloadFile } from "@/services/local";
+
 import { Button } from "./Button";
 import { NextImage } from "./NextImage";
+import { Popover } from "./Popover";
+import { Divider } from "./Divider";
 
 interface PhotoDetailProps {
 	id: string;
 	placeholderData: PhotoDetailType;
 	children?: JSX.Element;
 	noFetch?: boolean;
+	className?: string;
 }
 
 export function PhotoDetail({
@@ -27,8 +38,10 @@ export function PhotoDetail({
 	id,
 	children,
 	noFetch = false,
+	className,
 }: PhotoDetailProps) {
 	const { isOpen: isZoom, toggle } = useDisclosure();
+	const [isCopied, setIsCopied] = useState(false);
 
 	const { data, isLoading } = useQuery<PhotoDetailType>(
 		`photo-detail-${id}`,
@@ -64,17 +77,19 @@ export function PhotoDetail({
 		day: "numeric",
 	}).format(new Date(created_at));
 
-	const downloadImg = (url: string, desc: string) => {
-		const a = document.createElement("a");
-
-		a.href = url;
-		a.download = desc;
-		a.click();
+	const handleCopy = (e: MouseEvent<HTMLButtonElement>) => {
+		navigator.clipboard.writeText(urls.full);
+		setIsCopied(true);
+		setTimeout(() => setIsCopied(false), 400);
 	};
 
 	return (
 		<>
-			<div className="p-3 md:px-6  bg-white w-full flex gap-3 flex-col md:flex-row items-center justify-between">
+			<div
+				className={cn(
+					"p-3 md:px-6  bg-white w-full flex gap-3 flex-col md:flex-row items-center justify-between",
+					className
+				)}>
 				<Link
 					href={`/@${user.username}`}
 					className="w-full  flex gap-2 items-center">
@@ -96,18 +111,61 @@ export function PhotoDetail({
 					</div>
 				</Link>
 				<div className="w-full flex gap-2 items-center justify-between md:justify-end">
-					<Button className="px-2 py-2 text-xl bg-white hover:border-primary-secondary">
+					<Button className="px-2 py-2 text-xl bg-white">
 						<AiFillHeart
 							className=" text-primary-secondary rounded-md hover:text-primary-main transition-default cursor-pointer"
 							title="Add To Favorites"
 						/>
 					</Button>
-					<Button
-						className="!py-2 text-sm"
-						onClick={() => downloadImg(urls.raw, alt_description || user.name)}
-						disabled={premium}>
-						Download
-					</Button>
+					<div className="flex items-stretch">
+						<Button
+							className="!py-2 text-sm bg-green-400 hover:bg-green-500 !border-transparent !border-r-white !text-white rounded-r-none"
+							onClick={() =>
+								downloadFile(urls.raw, alt_description || user.name)
+							}
+							disabled={premium}>
+							Download Free
+						</Button>
+						<Popover
+							label=""
+							buttonClass="bg-green-400 hover:bg-green-500 h-full rounded-l-none transition-default
+							"
+							popoverClass="w-60 right-0 py-2 bg-primary-main border-primary-main text-white rounded-md shadow-md"
+							iconStart={
+								<FaChevronDown className="text-white transition-default" />
+							}>
+							<ul className="w-full">
+								<li
+									className="text-end text-sm px-3 py-2  hover:bg-primary-secondary/50 transition-default cursor-pointer"
+									onClick={() =>
+										downloadFile(urls.small, alt_description || user.name)
+									}>
+									Small <span className="text-md">(640 x 960)</span>
+								</li>
+								<li
+									className="text-end text-sm px-3 py-2  hover:bg-primary-secondary/50 transition-default cursor-pointer"
+									onClick={() =>
+										downloadFile(urls.regular, alt_description || user.name)
+									}>
+									Medium <span className="text-md">(1920 x 2880)</span>
+								</li>
+								<li
+									className="text-end text-sm px-3 py-2  hover:bg-primary-secondary/50 transition-default cursor-pointer"
+									onClick={() =>
+										downloadFile(urls.full, alt_description || user.name)
+									}>
+									Large <span className="text-md">(2400 x 3600)</span>
+								</li>
+								<li
+									className="text-end text-sm px-3 py-2  hover:bg-primary-secondary/50 transition-default cursor-pointer"
+									onClick={() =>
+										downloadFile(urls.raw, alt_description || user.name)
+									}>
+									Original Size <span className="text-md">(5760 x 8640)</span>
+								</li>
+							</ul>
+						</Popover>
+					</div>
 				</div>
 			</div>
 
@@ -162,13 +220,67 @@ export function PhotoDetail({
 						</p>
 					</div>
 				</div>
-
-				<div>
-					<Button
-						className="ml-auto text-sm !px-3 transition-default"
-						iconLeft={<IoMdShareAlt className="text-xl text-inherit" />}>
-						Share
-					</Button>
+				<div className="flex justify-end">
+					<Popover
+						className="pr-2"
+						buttonClass="ml-auto text-sm !px-3 transition-default border hover:border-primary-secondary rounded-md"
+						label="Share"
+						iconStart={<IoMdShareAlt className="text-xl text-inherit" />}>
+						<ul>
+							<li className="py-2 px-3 text-primary-secondary hover:text-primary-main hover:bg-gray-200 transition-default">
+								<a
+									href={`https://www.facebook.com/sharer/sharer.php?u=${urls.full}`}
+									target="_blank"
+									rel="noreferrer"
+									className="flex gap-2 items-center text-sm font-medium text-inherit">
+									<FaFacebook className="text-xl text-blue-600" />
+									Facebook
+								</a>
+							</li>
+							<li className="py-2 px-3 text-primary-secondary hover:text-primary-main hover:bg-gray-200 transition-default">
+								<a
+									href={`https://www.twitter.com/intent/tweet?url=${urls.full}`}
+									target="_blank"
+									rel="noreferrer"
+									className="flex gap-2 items-center text-sm font-medium text-inherit">
+									<FaTwitter className="text-xl text-blue-300" />
+									Twitter
+								</a>
+							</li>
+							<li className="py-2 px-3 text-primary-secondary hover:text-primary-main hover:bg-gray-200 transition-default">
+								<a
+									href={`https://www.pinterest.com/pin/create/button/?url=${urls.full}`}
+									target="_blank"
+									rel="noreferrer"
+									className="flex gap-2 items-center text-sm font-medium text-inherit">
+									<FaPinterest className="text-xl text-red-600" />
+									Pinterest
+								</a>
+							</li>
+							<li className="py-2 px-3 text-primary-secondary hover:text-primary-main hover:bg-gray-200 transition-default">
+								<a
+									href={`mailto:?subject=${
+										alt_description || `Photo By ${user.name}`
+									}&body=${urls.full}`}
+									target="_blank"
+									rel="noreferrer"
+									className="flex gap-2 items-center text-sm font-medium text-inherit">
+									<FaEnvelope className="text-xl text-primary-secondary" />
+									Mail
+								</a>
+							</li>
+							<Divider />
+							<li className="py-2 px-3 text-primary-secondary hover:text-primary-main hover:bg-gray-200 transition-default">
+								<button
+									type="button"
+									onClick={handleCopy}
+									className="flex gap-2 items-center text-sm font-medium text-inherit">
+									<FaPinterest className="text-xl text-red-600" />
+									{isCopied ? "Copied" : "Copy link"}
+								</button>
+							</li>
+						</ul>
+					</Popover>
 				</div>
 				<div>
 					{(location.country || location.city || location.name) && (
@@ -198,19 +310,21 @@ export function PhotoDetail({
 				</div>
 			</div>
 			{children}
-			<div className="p-3 pb-5 md:px-6 mx-auto w-[85%] mt-10">
-				<h4 className="mb-4">Related Photos</h4>
-				<div className="flex gap-3 items-center flex-wrap">
-					{tags.map((tag) => (
-						<Link
-							href={`/s/photos/${tag.title}`}
-							key={tag.title}
-							className="bg-gray-200 text-primary-secondary hover:bg-gray-300 hover:text-primary-main p-2 text-sm capitalize transition-default !duration-200">
-							{tag.title}
-						</Link>
-					))}
+			{!!tags?.length && (
+				<div className="p-3 pb-5 md:px-6 mx-auto w-[85%] mt-10">
+					<h4 className="mb-4">Related Tags</h4>
+					<div className="flex gap-3 items-center flex-wrap">
+						{tags.map((tag) => (
+							<Link
+								href={`/s/photos/${tag.title}`}
+								key={tag.title}
+								className="bg-gray-200 text-primary-secondary hover:bg-gray-300 hover:text-primary-main p-2 text-sm capitalize transition-default !duration-200">
+								{tag.title}
+							</Link>
+						))}
+					</div>
 				</div>
-			</div>
+			)}
 		</>
 	);
 }
