@@ -17,8 +17,6 @@ export default function Join({ randomPhoto }: { randomPhoto: PhotoType }) {
 		"day"
 	);
 
-	console.log(photoDate);
-
 	return (
 		<div className="overflow-hidden h-screen grid grid-cols-1 lg:grid-cols-[minmax(0,0.7fr)_minmax(0,1fr)]">
 			<section className="relative ">

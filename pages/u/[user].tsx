@@ -131,15 +131,17 @@ export default function ProfilePage({
 						{userDetails.bio ||
 							`Download free, beautiful high-quality photos curated by ${userDetails.name}.`}
 					</p>
-					<Link
-						href={{
-							pathname: "/s/photos/[search]",
-							query: { search: userDetails.location },
-						}}
-						className="text-md text-primary-secondary flex gap-1 items-center hover:text-primary-main transition-default">
-						<HiOutlineLocationMarker className="inline-block text-inherit" />
-						{userDetails.location}
-					</Link>
+					{userDetails.location && (
+						<Link
+							href={{
+								pathname: "/s/photos/[search]",
+								query: { search: userDetails.location },
+							}}
+							className="text-md text-primary-secondary flex gap-1 items-center hover:text-primary-main transition-default">
+							<HiOutlineLocationMarker className="inline-block text-inherit" />
+							{userDetails.location}
+						</Link>
+					)}
 
 					<Popover
 						iconStart={<AiOutlineLink className="inline-block" />}
@@ -217,21 +219,80 @@ export default function ProfilePage({
 					<p>Loading...</p>
 				) : status === "error" ? (
 					<span>Error: {error.message} </span>
-				) : (
-					status === "success" && (
-						<>
-							{photos.pages.map((page) => (
-								<React.Fragment key={`${page.nextId}-?${page.prevId}`}>
-									{page.photos.map((data, i) => (
-										<ImageButton
-											key={data.id}
-											className="break-inside-avoid"
-											data={data}
-											onClick={() => {
-												setCurrentPhoto({
-													...data,
-													index: i,
-												});
+				) : status === "success" && !!photos.pages.length ? (
+					<>
+						{photos.pages.map((page) => (
+							<React.Fragment key={`${page.nextId}-?${page.prevId}`}>
+								{page.photos.map((data, i) => (
+									<ImageButton
+										key={data.id}
+										className="break-inside-avoid"
+										data={data}
+										onClick={() => {
+											setCurrentPhoto({
+												...data,
+												index: i,
+											});
+											router.push(
+												{
+													pathname: `/u/[user]`,
+													query: {
+														user: router.query.user,
+													},
+												},
+												`/photos/${data.id}`,
+												{
+													shallow: true,
+												}
+											);
+											open();
+										}}
+									/>
+								))}
+							</React.Fragment>
+						))}
+						<Modal
+							classNames={{
+								modal:
+									"!my-10 md:!my-5 !mx-0 lg:!mx-5 !p-0 relative overflow-x-hidden !overflow-y-auto !w-screen md:!max-w-3xl lg:!max-w-5xl xl:!max-w-[calc(100%-10rem)] rounded-md",
+								closeButton: "hidden",
+								closeIcon: "hidden",
+							}}
+							center
+							open={isOpen}
+							onClose={() => {
+								setCurrentPhoto(null);
+								router.replace(
+									`/u/${router.query.user}`,
+									`/u/${router.query.user}`,
+									{
+										shallow: true,
+									}
+								);
+								close();
+							}}>
+							{currentPhoto && (
+								<>
+									<IoMdClose
+										className="fixed top-2 left-2 text-white/80 hover:text-white transition-default cursor-pointer"
+										onClick={close}
+										size={25}
+									/>
+
+									<PhotoDetail
+										id={currentPhoto.id}
+										placeholderData={{
+											...currentPhoto,
+											views: null,
+											downloads: null,
+											topics: [],
+											location: {},
+											exif: {},
+											tags: [],
+										}}>
+										<RelatedPhotos
+											id={currentPhoto.id}
+											onPhotoClick={(photo) => {
 												router.push(
 													{
 														pathname: `/u/[user]`,
@@ -239,116 +300,57 @@ export default function ProfilePage({
 															user: router.query.user,
 														},
 													},
-													`/photos/${data.id}`,
+													`/photos/${currentPhoto.id}`,
 													{
 														shallow: true,
 													}
 												);
-												open();
+												setCurrentPhoto(photo);
 											}}
 										/>
-									))}
-								</React.Fragment>
-							))}
-							<Modal
-								classNames={{
-									modal:
-										"!my-10 md:!my-5 !mx-0 lg:!mx-5 !p-0 relative overflow-x-hidden !overflow-y-auto !w-screen md:!max-w-3xl lg:!max-w-5xl xl:!max-w-[calc(100%-10rem)] rounded-md",
-									closeButton: "hidden",
-									closeIcon: "hidden",
-								}}
-								center
-								open={isOpen}
-								onClose={() => {
-									setCurrentPhoto(null);
-									router.replace(
-										`/u/${router.query.user}`,
-										`/u/${router.query.user}`,
-										{
-											shallow: true,
-										}
-									);
-									close();
-								}}>
-								{currentPhoto && (
-									<>
-										<IoMdClose
-											className="fixed top-2 left-2 text-white/80 hover:text-white transition-default cursor-pointer"
-											onClick={close}
-											size={25}
+									</PhotoDetail>
+									<button
+										type="button"
+										className="hidden md:block fixed top-1/2 left-7 text-white/80 hover:text-white disabled:text-white/60"
+										onClick={() => {
+											const photoArr = photos.pages.flatMap(
+												(page) => page.photos
+											)[currentPhoto.index - 1];
+											setCurrentPhoto({
+												...photoArr,
+												index: currentPhoto.index - 1,
+											});
+										}}
+										disabled={currentPhoto.index === 0}>
+										<FaChevronLeft
+											className="text-inherit  transition-default"
+											size={30}
 										/>
-
-										<PhotoDetail
-											id={currentPhoto.id}
-											placeholderData={{
-												...currentPhoto,
-												views: null,
-												downloads: null,
-												topics: [],
-												location: {},
-												exif: {},
-												tags: [],
-											}}>
-											<RelatedPhotos
-												id={currentPhoto.id}
-												onPhotoClick={(photo) => {
-													router.push(
-														{
-															pathname: `/u/[user]`,
-															query: {
-																user: router.query.user,
-															},
-														},
-														`/photos/${currentPhoto.id}`,
-														{
-															shallow: true,
-														}
-													);
-													setCurrentPhoto(photo);
-												}}
-											/>
-										</PhotoDetail>
-										<button
-											type="button"
-											className="hidden md:block fixed top-1/2 left-7 text-white/80 hover:text-white disabled:text-white/60"
-											onClick={() => {
-												const photoArr = photos.pages.flatMap(
-													(page) => page.photos
-												)[currentPhoto.index - 1];
-												setCurrentPhoto({
-													...photoArr,
-													index: currentPhoto.index - 1,
-												});
-											}}
-											disabled={currentPhoto.index === 0}>
-											<FaChevronLeft
-												className="text-inherit  transition-default"
-												size={30}
-											/>
-										</button>
-										<button
-											type="button"
-											className="hidden md:block fixed top-1/2 right-7 text-white/80 hover:text-white disabled:text-white/60"
-											onClick={() => {
-												const photoArr = photos.pages.flatMap(
-													(page) => page.photos
-												)[currentPhoto.index + 1];
-												setCurrentPhoto({
-													...photoArr,
-													index: currentPhoto.index + 1,
-												});
-												console.log(photoArr);
-											}}>
-											<FaChevronRight
-												className="text-inherit transition-default"
-												size={30}
-											/>
-										</button>
-									</>
-								)}
-							</Modal>
-						</>
-					)
+									</button>
+									<button
+										type="button"
+										className="hidden md:block fixed top-1/2 right-7 text-white/80 hover:text-white disabled:text-white/60"
+										onClick={() => {
+											const photoArr = photos.pages.flatMap(
+												(page) => page.photos
+											)[currentPhoto.index + 1];
+											setCurrentPhoto({
+												...photoArr,
+												index: currentPhoto.index + 1,
+											});
+											console.log(photoArr);
+										}}>
+										<FaChevronRight
+											className="text-inherit transition-default"
+											size={30}
+										/>
+									</button>
+								</>
+							)}
+						</Modal>
+					</>
+				) : (
+					<div className="h-screen">No Data</div>
 				)}
 			</section>
 			{status === "success" && hasNextPage && (

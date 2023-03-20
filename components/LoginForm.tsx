@@ -1,14 +1,28 @@
+import { userTable } from "@/services/local/db.config";
 import { loginModel } from "@/services/local/yupModels";
 import { Button, Input } from "@/ui";
 import { useFormik } from "formik";
 import Link from "next/link";
+import { useRouter } from "next/router";
 
 export function LoginForm() {
+	const router = useRouter();
+
 	const { getFieldProps, handleSubmit, errors, touched } = useFormik({
 		initialValues: loginModel.initials,
 		validationSchema: loginModel.schema,
-		onSubmit: (values) => {
-			console.log(values);
+		onSubmit: async (values) => {
+			try {
+				const user = await userTable.get({
+					email: values.email,
+					password: values.password,
+				});
+				if (!user) throw new Error("User not found");
+				console.log(user);
+				router.push("/login");
+			} catch (error) {
+				console.log(error);
+			}
 		},
 	});
 	return (
@@ -28,7 +42,7 @@ export function LoginForm() {
 				label="Email"
 				type="email"
 				placeholder="Enter your email"
-				inputClass="py-2 focus:border-primary-secondary"
+				inputClass="py-2 border-primary-secondary focus:border-primary-main"
 				labelClass="text-md"
 				{...getFieldProps("email")}
 				error={errors.email}
@@ -39,7 +53,7 @@ export function LoginForm() {
 				label="Password"
 				type="password"
 				placeholder="Enter your password"
-				inputClass="py-2 focus:border-primary-secondary"
+				inputClass="py-2 border-primary-secondary focus:border-primary-main"
 				labelClass="text-md"
 				{...getFieldProps("password")}
 				error={errors.password}

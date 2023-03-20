@@ -1,16 +1,38 @@
-import { registerModel } from "@/services/local/yupModels";
-import { Button, Input } from "@/ui";
 import { useFormik } from "formik";
 import Link from "next/link";
 
+import { registerModel } from "@/services/local/yupModels";
+import { userTable } from "@/services/local/db.config";
+
+import { Button, Input } from "@/ui";
+import { nanoid } from "nanoid";
+
 export function RegisterForm() {
-	const { getFieldProps, handleSubmit, errors, touched } = useFormik({
-		initialValues: registerModel.initials,
-		validationSchema: registerModel.schema,
-		onSubmit: (values) => {
-			console.log(values);
-		},
-	});
+	const { getFieldProps, handleSubmit, errors, touched, isSubmitting } =
+		useFormik({
+			initialValues: registerModel.initials,
+			validationSchema: registerModel.schema,
+			onSubmit: async (values, { resetForm, setSubmitting }) => {
+				setSubmitting(true);
+				try {
+					const userExists = await userTable.get({
+						email: values.email,
+					});
+					if (userExists) throw new Error("User already exists");
+					const id = await userTable.add({
+						...values,
+						uid: nanoid(),
+					});
+
+					console.info(`A new user has been added with id: ${id}`);
+					resetForm();
+				} catch (error) {
+					console.error(error);
+				} finally {
+					setSubmitting(false);
+				}
+			},
+		});
 	return (
 		<form
 			onSubmit={handleSubmit}
@@ -94,7 +116,10 @@ export function RegisterForm() {
 				/>
 			</div>
 
-			<Button type="submit" className="!max-w-none bg-primary-main !text-white">
+			<Button
+				type="submit"
+				className="!max-w-none bg-primary-main !text-white"
+				loading={isSubmitting}>
 				Join
 			</Button>
 
