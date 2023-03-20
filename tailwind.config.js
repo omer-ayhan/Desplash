@@ -105,7 +105,6 @@ module.exports = {
 
 				".link-default": {
 					color: theme("colors.primary-secondary"),
-					fontSize: theme("fontSize.md"),
 					"&:hover": {
 						color: theme("colors.primary-main"),
 					},

@@ -4,7 +4,7 @@ import { Tooltip } from "./Tooltip";
 
 interface InputProps extends InputHTMLAttributes<HTMLInputElement> {
 	id?: string;
-	label?: string;
+	label?: string | ReactElement;
 	className?: string;
 	labelClass?: string;
 	inputClass?: string;

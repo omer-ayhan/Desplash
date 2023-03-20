@@ -45,7 +45,7 @@ export function LoginForm() {
 				error={errors.password}
 				touched={touched.password}
 			/>
-			<Button type="submit" className="max-w-none bg-primary-main !text-white">
+			<Button type="submit" className="!max-w-none bg-primary-main !text-white">
 				Login
 			</Button>
 

@@ -13,10 +13,10 @@ export function MainLayout({
 }): JSX.Element {
 	const router = useRouter();
 	return (
-		<>
+		<main>
 			{!privateRoutes.includes(router.pathname) && <Navbar />}
-			<div>{children}</div>
+			{children}
 			{!privateRoutes.includes(router.pathname) && <Footer />}
-		</>
+		</main>
 	);
 }

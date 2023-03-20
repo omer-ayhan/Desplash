@@ -267,7 +267,7 @@ export default function Home({ randomPhoto }: { randomPhoto: PhotoType }) {
 	);
 }
 
-export async function getServerSideProps() {
+export async function getStaticProps() {
 	const { data: randomPhoto } = await axios.get(
 		"https://unsplash.com/napi/photos/random"
 	);
@@ -275,6 +275,7 @@ export async function getServerSideProps() {
 	return {
 		props: {
 			randomPhoto,
+			revalidate: 60 * 24,
 		},
 	};
 }
