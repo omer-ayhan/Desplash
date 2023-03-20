@@ -7,7 +7,7 @@ import { useQuery } from "react-query";
 
 import { Input } from "../ui/Forms";
 
-const privateRoutes = ["/u/[user]", "/photos/[id]"];
+const routesToHide = ["/u/[user]", "/photos/[id]"];
 
 export function Navbar() {
 	const router = useRouter();
@@ -64,14 +64,14 @@ export function Navbar() {
 					</li>
 					<li>
 						<Link
-							href="/signup"
+							href="/join"
 							className=" text-primary-secondary hover:text-black transition-default">
-							Sign up
+							Join Desplash
 						</Link>
 					</li>
 				</ul>
 			</div>
-			{status === "success" && !privateRoutes.includes(router.pathname) && (
+			{status === "success" && !routesToHide.includes(router.pathname) && (
 				<ul className="relative p-3 py-4 flex gap-5 items-center overflow-y-hidden overflow-x-scroll scrollbar-hide">
 					{topics.slice(0, 10).map(({ id, slug, title }) => (
 						<li key={id}>

@@ -45,7 +45,7 @@ module.exports = {
 		plugin(function ({ matchUtilities, addBase, addUtilities, theme }) {
 			addBase({
 				"body > *": {
-					color: theme("colors.main"),
+					color: theme("colors.primary-main"),
 				},
 				h1: {
 					fontSize: theme("fontSize.4xl"),
