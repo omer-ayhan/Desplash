@@ -12,11 +12,10 @@ import { Modal } from "react-responsive-modal";
 import { FaChevronLeft, FaChevronRight } from "react-icons/fa";
 
 import { PhotoType } from "@/types/photos";
-
-import { Input } from "@/components/Forms";
-import { Button } from "@/components/Button";
-import { ImageButton } from "@/components/ImageButton";
 import { useDisclosure } from "@/hooks";
+
+import { Button, Input } from "@/ui";
+import { ImageButton } from "@/components/ImageButton";
 import { PhotoDetail } from "@/components/PhotoDetail";
 import { RelatedPhotos } from "@/components/RelatedPhotos";
 

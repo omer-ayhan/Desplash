@@ -44,7 +44,7 @@ export function ImageButton({
 			/>
 
 			<AiFillHeart
-				className="p-2 w-11 invisible group-hover:visible absolute top-4 right-4 text-primary-secondary bg-white rounded-md hover:text-primary-main"
+				className="p-2 w-11 invisible group-hover:visible absolute top-4 right-4 text-primary-secondary bg-white rounded-md hover:text-primary-main cursor-pointer"
 				title="Add To Favorites"
 				size={34}
 			/>

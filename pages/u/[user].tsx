@@ -10,24 +10,24 @@ import {
 	AiOutlineLink,
 	AiOutlineTwitter,
 } from "react-icons/ai";
+import Modal from "react-responsive-modal";
 import { HiOutlineLocationMarker, HiPhotograph } from "react-icons/hi";
+import { useInView } from "react-intersection-observer";
+import { FaChevronLeft, FaChevronRight } from "react-icons/fa";
 import { BiWorld } from "react-icons/bi";
+import { IoMdClose } from "react-icons/io";
+import { useInfiniteQuery } from "react-query";
 
 import { UserDetailType } from "@/types/user";
 
-import { Popover } from "@/components/Popover";
+import { Popover } from "@/ui/Popover";
 import { PhotoType } from "@/types/photos";
-import { useInfiniteQuery } from "react-query";
+import { useDisclosure } from "@/hooks";
+
 import { ImageButton } from "@/components/ImageButton";
-import { IoMdClose } from "react-icons/io";
 import { PhotoDetail } from "@/components/PhotoDetail";
 import { RelatedPhotos } from "@/components/RelatedPhotos";
-import { FaChevronLeft, FaChevronRight } from "react-icons/fa";
-import Modal from "react-responsive-modal";
-import { Button } from "@/components/Button";
-import { useInView } from "react-intersection-observer";
-import { useDisclosure } from "@/hooks";
-import { Divider } from "@/components/Divider";
+import { Button, Divider } from "@/ui";
 
 interface ProfilePageProps {
 	userDetails: UserDetailType;

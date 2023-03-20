@@ -5,7 +5,7 @@ import { useState } from "react";
 import { AiOutlineSearch } from "react-icons/ai";
 import { useQuery } from "react-query";
 
-import { Input } from "./Forms";
+import { Input } from "../ui/Forms";
 
 const privateRoutes = ["/u/[user]", "/photos/[id]"];
 

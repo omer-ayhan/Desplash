@@ -20,10 +20,8 @@ import { PhotoDetailType } from "@/types/photos";
 import { useDisclosure } from "@/hooks";
 import { cn, downloadFile } from "@/services/local";
 
-import { Button } from "./Button";
+import { Button, Divider, Popover } from "@/ui";
 import { NextImage } from "./NextImage";
-import { Popover } from "./Popover";
-import { Divider } from "./Divider";
 
 interface PhotoDetailProps {
 	id: string;
@@ -111,11 +109,8 @@ export function PhotoDetail({
 					</div>
 				</Link>
 				<div className="w-full flex gap-2 items-center justify-between md:justify-end">
-					<Button className="px-2 py-2 text-xl bg-white">
-						<AiFillHeart
-							className=" text-primary-secondary rounded-md hover:text-primary-main transition-default cursor-pointer"
-							title="Add To Favorites"
-						/>
+					<Button className="px-2 py-2 text-xl text-primary-secondary hover:text-primary-main bg-white transition-default rounded-md cursor-pointer">
+						<AiFillHeart title="Add To Favorites" />
 					</Button>
 					<div className="flex items-stretch">
 						<Button
@@ -130,7 +125,7 @@ export function PhotoDetail({
 							label=""
 							buttonClass="bg-green-400 hover:bg-green-500 h-full rounded-l-none transition-default
 							"
-							popoverClass="w-60 right-0 py-2 bg-primary-main border-primary-main text-white rounded-md shadow-md"
+							popoverClass="w-60 right-0 py-2 !bg-primary-main !border-primary-main text-white rounded-md shadow-md"
 							iconStart={
 								<FaChevronDown className="text-white transition-default" />
 							}>
