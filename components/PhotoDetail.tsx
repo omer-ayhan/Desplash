@@ -91,7 +91,7 @@ export function PhotoDetail({
 					className
 				)}>
 				<Link
-					href={`/@${user.username}`}
+					href={`/u/@${user.username}`}
 					className="w-full  flex gap-2 items-center">
 					<Image
 						src={user.profile_image.medium}

@@ -234,7 +234,7 @@ export default function ProfilePage({
 												});
 												router.push(
 													{
-														pathname: `/[user]`,
+														pathname: `/u/[user]`,
 														query: {
 															user: router.query.user,
 														},
@@ -262,8 +262,8 @@ export default function ProfilePage({
 								onClose={() => {
 									setCurrentPhoto(null);
 									router.replace(
-										`/${router.query.user}`,
-										`/${router.query.user}`,
+										`/u/${router.query.user}`,
+										`/u/${router.query.user}`,
 										{
 											shallow: true,
 										}
@@ -294,7 +294,7 @@ export default function ProfilePage({
 												onPhotoClick={(photo) => {
 													router.push(
 														{
-															pathname: `/[user]`,
+															pathname: `/u/[user]`,
 															query: {
 																user: router.query.user,
 															},

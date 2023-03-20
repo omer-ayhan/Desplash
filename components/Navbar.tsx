@@ -7,7 +7,7 @@ import { useQuery } from "react-query";
 
 import { Input } from "./Forms";
 
-const privateRoutes = ["/[user]", "/photos/[id]"];
+const privateRoutes = ["/u/[user]", "/photos/[id]"];
 
 export function Navbar() {
 	const router = useRouter();
