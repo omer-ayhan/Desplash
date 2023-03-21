@@ -70,7 +70,7 @@ export function MasonryImages({
 			</Head>
 			<section
 				className={cn(
-					"mb-10 mx-auto max-w-6xl masonry-col-3 masonry-gap-3 transition-default",
+					"mb-10 mx-auto max-w-6xl md:masonry-col-2 lg:masonry-col-3 masonry-gap-3 transition-default",
 					className
 				)}>
 				{status === "loading" ? (
