@@ -1,15 +1,18 @@
+import { useEffect, useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { AiFillHeart } from "react-icons/ai";
 import { FiArrowDown } from "react-icons/fi";
+import { FaChevronDown } from "react-icons/fa";
 import { useAtomValue, useSetAtom } from "jotai";
 
 import { cn, downloadFile } from "@/services/local";
 import { PhotoType } from "@/types/photos";
 import { loginModalAtom, userAtom } from "@/services/local/store";
 import { favoritesTable } from "@/services/local/db.config";
+import { queryClient } from "@/pages/_app";
+
 import { Button, Popover } from "@/ui";
-import { FaChevronDown } from "react-icons/fa";
 
 interface ImageButtonProps {
 	data: PhotoType;
@@ -28,8 +31,29 @@ export function ImageButton({
 	const { id, urls, alt_description, user, premium } = data;
 
 	const currUser = useAtomValue(userAtom);
-
 	const setModal = useSetAtom(loginModalAtom);
+
+	const [isLiked, SetIsLiked] = useState(false);
+
+	const checkLiked = async () => {
+		try {
+			if (!currUser?.uid) {
+				SetIsLiked(false);
+				return;
+			}
+			const liked = await favoritesTable.get({
+				id: data.id,
+			});
+
+			SetIsLiked(!!liked?.id);
+		} catch (error) {
+			SetIsLiked(false);
+		}
+	};
+
+	useEffect(() => {
+		checkLiked();
+	}, []);
 
 	const handleLike = async () => {
 		try {
@@ -47,6 +71,7 @@ export function ImageButton({
 
 			if (favExists) {
 				await favoritesTable.delete(favExists.id);
+				SetIsLiked(false);
 				return;
 			}
 
@@ -55,9 +80,14 @@ export function ImageButton({
 				uid: currUser.uid,
 			});
 
+			SetIsLiked(true);
+
 			console.log(favRes);
 		} catch (error) {
 			console.log(error);
+		} finally {
+			queryClient.clear();
+			queryClient.invalidateQueries("favorites");
 		}
 	};
 
@@ -65,7 +95,7 @@ export function ImageButton({
 		<div
 			key={id}
 			className={cn(
-				"my-5 md:mb-3 group relative p-0 break-inside-avoid-column",
+				"my-5 md:mt-0 md:mb-3 group relative p-0 break-inside-avoid-column",
 				className
 			)}
 			title={alt_description}>
@@ -107,7 +137,12 @@ export function ImageButton({
 			<div className="p-3 w-full flex md:hidden gap-2 items-center justify-between md:justify-end">
 				<Button
 					onClick={handleLike}
-					className="!px-3 py-2 text-xl text-primary-secondary hover:text-primary-main bg-white transition-default rounded-md cursor-pointer"
+					className={cn(
+						"!px-3 py-2 text-xl transition-default rounded-md cursor-pointer",
+						isLiked
+							? "border-none bg-red-500 text-white"
+							: "text-primary-secondary bg-white hover:text-primary-main"
+					)}
 					title="Add To Favorites">
 					<AiFillHeart size={18} />
 				</Button>
@@ -164,7 +199,12 @@ export function ImageButton({
 
 			<AiFillHeart
 				onClick={handleLike}
-				className="hidden md:block p-2 w-11 invisible group-hover:visible absolute top-4 right-4 text-primary-secondary bg-white rounded-md hover:text-primary-main cursor-pointer z-40"
+				className={cn(
+					"hidden md:block p-2 w-11 invisible group-hover:visible absolute top-4 right-4 rounded-md cursor-pointer z-40 transition-default",
+					isLiked
+						? "border-none bg-red-500 text-white"
+						: "text-primary-secondary bg-white hover:text-primary-main"
+				)}
 				title="Add To Favorites"
 				size={34}
 			/>

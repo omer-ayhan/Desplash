@@ -44,6 +44,7 @@ export function Navbar() {
 	const signOut = () => {
 		setUser(null);
 		localStorage.removeItem("user");
+		router.reload();
 	};
 
 	return (
