@@ -2,10 +2,12 @@ import Image from "next/image";
 import Link from "next/link";
 import { AiFillHeart } from "react-icons/ai";
 import { FiArrowDown } from "react-icons/fi";
+import { useAtomValue, useSetAtom } from "jotai";
 
 import { cn, downloadFile } from "@/services/local";
 import { PhotoType } from "@/types/photos";
-import { useMainStore } from "@/services/local/store";
+import { loginModalAtom, userAtom } from "@/services/local/store";
+import { favoritesTable } from "@/services/local/db.config";
 
 interface ImageButtonProps {
 	data: PhotoType;
@@ -22,19 +24,42 @@ export function ImageButton({
 	onClick,
 }: ImageButtonProps) {
 	const { id, urls, alt_description, user, premium } = data;
-	const { currUser, setModal } = useMainStore((store) => ({
-		currUser: store.user,
-		setModal: store.setLoginModal,
-	}));
+	// const { currUser, setModal } = useMainStore((store) => ({
+	// 	currUser: store.user,
+	// 	setModal: store.setLoginModal,
+	// }));
 
-	const handleLike = () => {
-		if (!currUser?.uid) {
-			setModal({
-				isOpen: true,
-				img: urls.regular,
+	const currUser = useAtomValue(userAtom);
+
+	const setModal = useSetAtom(loginModalAtom);
+
+	const handleLike = async () => {
+		try {
+			if (!currUser?.uid) {
+				setModal({
+					isOpen: true,
+					img: urls.regular,
+				});
+
+				throw new Error("You must be logged in to like a photo");
+			}
+			const favExists = await favoritesTable.get({
+				id: data.id,
 			});
-		} else {
-			console.log("liked");
+
+			if (favExists) {
+				await favoritesTable.delete(favExists.id);
+				return;
+			}
+
+			const favRes = await favoritesTable.add({
+				...data,
+				uid: currUser.uid,
+			});
+
+			console.log(favRes);
+		} catch (error) {
+			console.log(error);
 		}
 	};
 

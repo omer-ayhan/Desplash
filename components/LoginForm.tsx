@@ -1,18 +1,19 @@
 import Link from "next/link";
 import { useRouter } from "next/router";
 import { FormikHelpers, useFormik } from "formik";
+import { useAtom, useSetAtom } from "jotai";
 
 import { userTable } from "@/services/local/db.config";
-import { useMainStore } from "@/services/local/store";
+import { userAtom } from "@/services/local/store";
 import { loginModel } from "@/services/local/yupModels";
+import { cn } from "@/services/local";
 import { LoginFormType } from "@/types/yup";
 
 import { Button, Input } from "@/ui";
-import { cn } from "@/services/local";
 
 export function LoginForm({ className }: { className?: string }) {
 	const router = useRouter();
-	const setUser = useMainStore((state) => state.setUser);
+	const setUser = useSetAtom(userAtom);
 
 	const handleLogin = async (
 		values: LoginFormType,
@@ -30,6 +31,7 @@ export function LoginForm({ className }: { className?: string }) {
 				last_name: user.last_name,
 				uid: user.uid,
 			});
+			localStorage.setItem("user", JSON.stringify(user));
 			resetForm();
 			router.push("/");
 		} catch (error) {
@@ -45,6 +47,7 @@ export function LoginForm({ className }: { className?: string }) {
 			validationSchema: loginModel.schema,
 			onSubmit: handleLogin,
 		});
+
 	return (
 		<form
 			onSubmit={handleSubmit}

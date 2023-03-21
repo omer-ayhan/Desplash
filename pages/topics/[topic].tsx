@@ -1,27 +1,17 @@
 import Head from "next/head";
-import { Fragment, useEffect, useState } from "react";
+import { useState } from "react";
 import Image from "next/image";
 import { GetServerSidePropsContext } from "next";
 import Link from "next/link";
 import { useRouter } from "next/router";
-import { IoMdClose } from "react-icons/io";
 import axios, { AxiosError } from "axios";
 import { useInfiniteQuery } from "react-query";
-import { useInView } from "react-intersection-observer";
-import { Modal } from "react-responsive-modal";
-import { FaChevronLeft, FaChevronRight } from "react-icons/fa";
 
 import { PhotoType } from "@/types/photos";
-import { useDisclosure } from "@/hooks";
 
-import { Button } from "@/ui";
-import { ImageButton } from "@/components/ImageButton";
-import { PhotoDetail } from "@/components/PhotoDetail";
-import { RelatedPhotos } from "@/components/RelatedPhotos";
+import { MasonryImages } from "@/components/MasonryImages";
 
-export default function Home({
-	initialValue,
-}: {
+interface HomePageProps {
 	initialValue: {
 		data: PhotoType[];
 		nextId: number | null;
@@ -34,12 +24,11 @@ export default function Home({
 			id: string;
 		};
 	};
-}) {
-	const { ref, inView } = useInView();
+}
+
+export default function Home({ initialValue }: HomePageProps) {
 	const router = useRouter();
-	const { isOpen, close, open } = useDisclosure();
 	const [latestId, setLatestId] = useState<string[]>([]);
-	const [currentPhoto, setCurrentPhoto] = useState<PhotoType | null>(null);
 
 	const {
 		status,
@@ -50,7 +39,7 @@ export default function Home({
 		hasNextPage,
 	} = useInfiniteQuery<
 		{
-			data: PhotoType[];
+			photos: PhotoType[];
 			nextId: number | null;
 			prevId: number | null;
 		},
@@ -60,7 +49,7 @@ export default function Home({
 		async ({ pageParam = 1, signal }) => {
 			if (!pageParam) {
 				return {
-					data: [],
+					photos: [],
 					nextId: null,
 					prevId: null,
 				};
@@ -75,7 +64,7 @@ export default function Home({
 
 			return {
 				...photoRes,
-				data: photoRes.data.filter((p) => !latestId.includes(p.id)),
+				photos: photoRes.data.filter((p) => !latestId.includes(p.id)),
 			};
 		},
 		{
@@ -83,7 +72,7 @@ export default function Home({
 				pageParams: [1],
 				pages: [
 					{
-						data: initialValue.data,
+						photos: initialValue.data,
 						nextId: initialValue.nextId,
 						prevId: initialValue.prevId,
 					},
@@ -91,28 +80,39 @@ export default function Home({
 			},
 			getNextPageParam: (lastPage) => lastPage.nextId,
 			onSuccess: (data) => {
-				setLatestId(data.pages.flatMap((page) => page.data).map((p) => p.id));
+				setLatestId(data.pages.flatMap((page) => page.photos).map((p) => p.id));
 			},
 		}
 	);
-	const handleFetchPage = () => hasNextPage && fetchNextPage();
 
-	useEffect(() => {
-		if (inView) {
-			handleFetchPage();
-		}
-	}, [inView]);
+	const modalClose = () => {
+		router.replace(
+			`/topics/${router.query.topic}`,
+			`/topics/${router.query.topic}`,
+			{
+				shallow: true,
+			}
+		);
+	};
+
+	const handleImageClick = (id: string) => {
+		router.push(
+			{
+				pathname: `/topics/[topic]`,
+				query: {
+					topic: router.query.topic,
+				},
+			},
+			`/photos/${id}`,
+			{
+				shallow: true,
+			}
+		);
+	};
 
 	return (
 		<>
 			<Head>
-				<title>
-					{currentPhoto?.alt_description ||
-						(initialValue.heroValue.title &&
-							`${initialValue.heroValue.title} | Desplash`) ||
-						"Desplash"}
-				</title>
-
 				{initialValue.heroValue.description && (
 					<meta
 						name="description"
@@ -144,155 +144,22 @@ export default function Home({
 					</Link>
 				</p>
 			</section>
-			<section className="my-10 mx-auto max-w-6xl masonry-col-3 masonry-gap-3 transition-default">
-				{status === "loading" ? (
-					<p>Loading...</p>
-				) : status === "error" ? (
-					<span>Error: {error.message} </span>
-				) : (
-					status === "success" && (
-						<>
-							{photos.pages.map((page) => (
-								<Fragment key={`${page.nextId}-?${page.prevId}`}>
-									{page.data.map((data, i) => (
-										<ImageButton
-											key={data.id}
-											className="break-inside-avoid"
-											data={data}
-											onClick={() => {
-												setCurrentPhoto({
-													...data,
-													index: i,
-												});
-												router.push(
-													{
-														pathname: `/topics/[topic]`,
-														query: {
-															topic: router.query.topic,
-														},
-													},
-													`/photos/${data.id}`,
-													{
-														shallow: true,
-													}
-												);
-												open();
-											}}
-										/>
-									))}
-								</Fragment>
-							))}
-							<Modal
-								classNames={{
-									modal:
-										"!my-10 md:!my-5 !mx-0 lg:!mx-5 !p-0 relative overflow-x-hidden !overflow-y-auto !w-screen md:!max-w-3xl lg:!max-w-5xl xl:!max-w-[calc(100%-10rem)] rounded-md",
-									closeButton: "hidden",
-									closeIcon: "hidden",
-								}}
-								center
-								open={isOpen}
-								onClose={() => {
-									setCurrentPhoto(null);
-									router.replace(
-										`/topics/${router.query.topic}`,
-										`/topics/${router.query.topic}`,
-										{
-											shallow: true,
-										}
-									);
-									close();
-								}}>
-								{currentPhoto && (
-									<>
-										<IoMdClose
-											className="fixed top-2 left-2 text-white/80 hover:text-white transition-default cursor-pointer"
-											onClick={close}
-											size={25}
-										/>
-
-										<PhotoDetail
-											id={currentPhoto.id}
-											placeholderData={{
-												...currentPhoto,
-												views: null,
-												downloads: null,
-												topics: [],
-												location: {},
-												exif: {},
-												tags: [],
-											}}>
-											<RelatedPhotos
-												id={currentPhoto.id}
-												onPhotoClick={(photo) => {
-													router.push(
-														{
-															pathname: `/topics/[topic]`,
-															query: {
-																topic: router.query.topic,
-															},
-														},
-														`/photos/${currentPhoto.id}`,
-														{
-															shallow: true,
-														}
-													);
-													setCurrentPhoto(photo);
-												}}
-											/>
-										</PhotoDetail>
-										<button
-											type="button"
-											className="hidden md:block fixed top-1/2 left-7 text-white/80 hover:text-white disabled:text-white/60"
-											onClick={() => {
-												const photoArr = photos.pages.flatMap(
-													(page) => page.data
-												)[currentPhoto.index - 1];
-												setCurrentPhoto({
-													...photoArr,
-													index: currentPhoto.index - 1,
-												});
-											}}
-											disabled={currentPhoto.index === 0}>
-											<FaChevronLeft
-												className="text-inherit  transition-default"
-												size={30}
-											/>
-										</button>
-										<button
-											type="button"
-											className="hidden md:block fixed top-1/2 right-7 text-white/80 hover:text-white disabled:text-white/60"
-											onClick={() => {
-												const photoArr = photos.pages.flatMap(
-													(page) => page.data
-												)[currentPhoto.index + 1];
-												setCurrentPhoto({
-													...photoArr,
-													index: currentPhoto.index + 1,
-												});
-												console.log(photoArr);
-											}}>
-											<FaChevronRight
-												className="text-inherit transition-default"
-												size={30}
-											/>
-										</button>
-									</>
-								)}
-							</Modal>
-						</>
-					)
-				)}
-			</section>
-			{status === "success" && hasNextPage && (
-				<div ref={ref}>
-					<Button
-						className="mx-auto my-5"
-						onClick={handleFetchPage}
-						loading={isFetchingNextPage}>
-						Load More
-					</Button>
-				</div>
-			)}
+			<MasonryImages
+				className="my-10"
+				error={error}
+				fetchNextPage={fetchNextPage}
+				hasNextPage={hasNextPage}
+				isFetchingNextPage={isFetchingNextPage}
+				photos={photos}
+				status={status}
+				onModalClose={modalClose}
+				onImageClick={handleImageClick}
+				headTitle={
+					(initialValue.heroValue.title &&
+						`${initialValue.heroValue.title} | Desplash`) ||
+					"Desplash"
+				}
+			/>
 		</>
 	);
 }

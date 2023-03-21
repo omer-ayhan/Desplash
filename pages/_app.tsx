@@ -6,6 +6,7 @@ import Head from "next/head";
 import { QueryClient, QueryClientProvider } from "react-query";
 
 import { MainLayout } from "@/layouts";
+import { createStore, Provider } from "jotai";
 
 export default function App({ Component, pageProps }: AppProps) {
 	const queryClient = new QueryClient({
@@ -26,9 +27,11 @@ export default function App({ Component, pageProps }: AppProps) {
 				<title>Best Free Photos & Images | Desplash</title>
 			</Head>
 			<QueryClientProvider client={queryClient}>
-				<MainLayout>
-					<Component {...pageProps} />
-				</MainLayout>
+				<Provider>
+					<MainLayout>
+						<Component {...pageProps} />
+					</MainLayout>
+				</Provider>
 			</QueryClientProvider>
 		</>
 	);

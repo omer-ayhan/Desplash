@@ -1,7 +1,5 @@
-import { useMainStore } from "@/services/local/store";
-import { Divider, Popover } from "@/ui";
-import { Avatar } from "@/ui/Avatar";
 import axios from "axios";
+import { useAtom } from "jotai";
 import Link from "next/link";
 import { useRouter } from "next/router";
 import { useState } from "react";
@@ -9,16 +7,16 @@ import { AiOutlineSearch } from "react-icons/ai";
 import { MdFavorite } from "react-icons/md";
 import { useQuery } from "react-query";
 
-import { Input } from "../ui/Forms";
+import { userAtom } from "@/services/local/store";
+
+import { Divider, Popover, Input, Avatar } from "@/ui";
 
 const routesToHide = ["/u/[user]", "/photos/[id]"];
 
 export function Navbar() {
 	const router = useRouter();
-	const { user, signOut } = useMainStore((state) => ({
-		user: state.user,
-		signOut: state.signOut,
-	}));
+
+	const [user, setUser] = useAtom(userAtom);
 
 	const { data: topics, status } = useQuery<
 		{
@@ -36,6 +34,11 @@ export function Navbar() {
 	const [searchText, setSearchText] = useState<string>(
 		router.query.search as string
 	);
+
+	const signOut = () => {
+		setUser(null);
+		localStorage.removeItem("user");
+	};
 
 	return (
 		<nav className="w-screen bg-white flex flex-col sticky top-0 z-50">
