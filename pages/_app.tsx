@@ -21,15 +21,13 @@ export default function App({ Component, pageProps }: AppProps) {
 		},
 	});
 
-	const jotaiStore = createStore();
-
 	return (
 		<>
 			<Head>
 				<title>Best Free Photos & Images | Desplash</title>
 			</Head>
 			<QueryClientProvider client={queryClient}>
-				<Provider store={jotaiStore}>
+				<Provider>
 					<MainLayout>
 						<Component {...pageProps} />
 					</MainLayout>

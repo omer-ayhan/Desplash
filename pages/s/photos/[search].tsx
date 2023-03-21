@@ -1,26 +1,15 @@
-import Head from "next/head";
-import React, { useEffect } from "react";
+import React from "react";
 import { useRouter } from "next/router";
-import { IoMdClose } from "react-icons/io";
 import { GetServerSidePropsContext } from "next";
 import Link from "next/link";
 import axios, { AxiosError } from "axios";
 import { useInfiniteQuery } from "react-query";
-import { useInView } from "react-intersection-observer";
-import { Modal } from "react-responsive-modal";
-import { FaChevronLeft, FaChevronRight } from "react-icons/fa";
 
 import { PhotoType } from "@/types/photos";
-import { useDisclosure } from "@/hooks";
 
-import { Button } from "@/ui";
-import { ImageButton } from "@/components/ImageButton";
-import { PhotoDetail } from "@/components/PhotoDetail";
-import { RelatedPhotos } from "@/components/RelatedPhotos";
+import { MasonryImages } from "@/components/MasonryImages";
 
-export default function SearchPhoto({
-	initialData,
-}: {
+interface SerchPageProps {
 	initialData: {
 		photos: PhotoType[];
 		meta: {
@@ -35,14 +24,11 @@ export default function SearchPhoto({
 		nextId: number | null;
 		prevId: number | null;
 	};
-}) {
-	const { ref, inView } = useInView();
+}
+
+export default function SearchPhoto({ initialData }: SerchPageProps) {
 	const router = useRouter();
-	const { isOpen, close, open } = useDisclosure();
 	const [latestId, setLatestId] = React.useState<string[]>([]);
-	const [currentPhoto, setCurrentPhoto] = React.useState<PhotoType | null>(
-		null
-	);
 
 	const {
 		status,
@@ -107,192 +93,65 @@ export default function SearchPhoto({
 		}
 	);
 
-	const handleFetchPage = () => hasNextPage && fetchNextPage();
+	const modalClose = () => {
+		router.replace(
+			`/s/photos/${router.query.search}`,
+			`/s/photos/${router.query.search}`,
+			{
+				shallow: true,
+			}
+		);
+	};
 
-	useEffect(() => {
-		if (inView) {
-			handleFetchPage();
-		}
-	}, [inView]);
+	const handleImageClick = (id: string) => {
+		router.push(
+			{
+				pathname: `/s/photos/[search]`,
+				query: {
+					search: router.query.search,
+				},
+			},
+			`/photos/${id}`,
+			{
+				shallow: true,
+			}
+		);
+	};
 
 	return (
 		<>
-			<Head>
-				<title>
-					{currentPhoto?.alt_description ||
-						initialData.meta.title ||
-						`${
-							(router.query.search as string).charAt(0).toUpperCase() +
-							(router.query.search as string).slice(1).toLowerCase()
-						} Photos`}
-				</title>
-			</Head>
-			<div>
-				<section className="pt-1 pb-5 mx-auto max-w-6xl relative   w-screen  bg-blend-darken overflow-hidden">
-					<h2 className="capitalize font-medium">{router.query.search}</h2>
-					<div className="flex items-center gap-3 flex-wrap">
-						{initialData.related.map((related) => (
-							<Link
-								className="p-3 px-5 border border-gay-300 text-primary-secondary text-sm 
+			<section className="pt-1 pb-5 mx-auto max-w-6xl relative   w-screen  bg-blend-darken overflow-hidden">
+				<h2 className="capitalize font-medium">{router.query.search}</h2>
+				<div className="flex items-center gap-3 flex-wrap">
+					{initialData.related.map((related) => (
+						<Link
+							className="p-3 px-5 border border-gay-300 text-primary-secondary text-sm 
 								hover:border-primary-secondary hover:text-primary-main
 								font-medium capitalize rounded-md transition-default"
-								href={`/s/photos/${related.title.replace(/ /gi, "-")}`}
-								key={related.title}>
-								{related.title}
-							</Link>
-						))}
-					</div>
-				</section>
-				<section className="mb-10 mx-auto max-w-6xl masonry-col-3 masonry-gap-3 transition-default">
-					{status === "loading" ? (
-						<p>Loading...</p>
-					) : status === "error" ? (
-						<span>Error: {error.message} </span>
-					) : (
-						status === "success" && (
-							<>
-								{photos.pages.map((page) => (
-									<React.Fragment key={`${page.nextId}-?${page.prevId}`}>
-										{page.photos.map((data, i) => (
-											<ImageButton
-												key={data.id}
-												className="break-inside-avoid"
-												data={data}
-												onClick={() => {
-													setCurrentPhoto({
-														...data,
-														index: i,
-													});
-													router.push(
-														{
-															pathname: `/s/photos/[search]`,
-															query: {
-																search: router.query.search,
-															},
-														},
-														`/photos/${data.id}`,
-														{
-															shallow: true,
-														}
-													);
-													open();
-												}}
-											/>
-										))}
-									</React.Fragment>
-								))}
-								<Modal
-									classNames={{
-										modal:
-											"!my-10 md:!my-5 !mx-0 lg:!mx-5 !p-0 relative overflow-x-hidden !overflow-y-auto !w-screen md:!max-w-3xl lg:!max-w-5xl xl:!max-w-[calc(100%-10rem)] rounded-md",
-										closeButton: "hidden",
-										closeIcon: "hidden",
-									}}
-									center
-									open={isOpen}
-									onClose={() => {
-										setCurrentPhoto(null);
-										router.replace(
-											`/s/photos/${router.query.search}`,
-											`/s/photos/${router.query.search}`,
-											{
-												shallow: true,
-											}
-										);
-										close();
-									}}>
-									{currentPhoto && (
-										<>
-											<IoMdClose
-												className="fixed top-2 left-2 text-white/80 hover:text-white transition-default cursor-pointer"
-												onClick={close}
-												size={25}
-											/>
-
-											<PhotoDetail
-												id={currentPhoto.id}
-												placeholderData={{
-													...currentPhoto,
-													views: null,
-													downloads: null,
-													topics: [],
-													location: {},
-													exif: {},
-													tags: [],
-												}}>
-												<RelatedPhotos
-													id={currentPhoto.id}
-													onPhotoClick={(photo) => {
-														router.push(
-															{
-																pathname: `/s/photos/[search]`,
-																query: {
-																	search: router.query.search,
-																},
-															},
-															`/photos/${currentPhoto.id}`,
-															{
-																shallow: true,
-															}
-														);
-														setCurrentPhoto(photo);
-													}}
-												/>
-											</PhotoDetail>
-											<button
-												type="button"
-												className="hidden md:block fixed top-1/2 left-7 text-white/80 hover:text-white disabled:text-white/60"
-												onClick={() => {
-													const photoArr = photos.pages.flatMap(
-														(page) => page.photos
-													)[currentPhoto.index - 1];
-													setCurrentPhoto({
-														...photoArr,
-														index: currentPhoto.index - 1,
-													});
-												}}
-												disabled={currentPhoto.index === 0}>
-												<FaChevronLeft
-													className="text-inherit  transition-default"
-													size={30}
-												/>
-											</button>
-											<button
-												type="button"
-												className="hidden md:block fixed top-1/2 right-7 text-white/80 hover:text-white disabled:text-white/60"
-												onClick={() => {
-													const photoArr = photos.pages.flatMap(
-														(page) => page.photos
-													)[currentPhoto.index + 1];
-													setCurrentPhoto({
-														...photoArr,
-														index: currentPhoto.index + 1,
-													});
-													console.log(photoArr);
-												}}>
-												<FaChevronRight
-													className="text-inherit transition-default"
-													size={30}
-												/>
-											</button>
-										</>
-									)}
-								</Modal>
-							</>
-						)
-					)}
-				</section>
-				{status === "success" && hasNextPage && (
-					<div ref={ref}>
-						<Button
-							className="mx-auto my-5"
-							onClick={handleFetchPage}
-							loading={isFetchingNextPage}>
-							Load More
-						</Button>
-					</div>
-				)}
-			</div>
+							href={`/s/photos/${related.title.replace(/ /gi, "-")}`}
+							key={related.title}>
+							{related.title}
+						</Link>
+					))}
+				</div>
+			</section>
+			<MasonryImages
+				error={error}
+				fetchNextPage={fetchNextPage}
+				hasNextPage={hasNextPage}
+				isFetchingNextPage={isFetchingNextPage}
+				photos={photos}
+				status={status}
+				onModalClose={modalClose}
+				onImageClick={handleImageClick}
+				headTitle={
+					initialData.meta.title ||
+					`${
+						(router.query.search as string).charAt(0).toUpperCase() +
+						(router.query.search as string).slice(1).toLowerCase()
+					} Photos`
+				}
+			/>
 		</>
 	);
 }

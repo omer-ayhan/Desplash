@@ -1,7 +1,6 @@
-import React, { useEffect, useState } from "react";
+import React from "react";
 import axios, { AxiosError } from "axios";
 import { GetServerSidePropsContext } from "next";
-import Head from "next/head";
 import Image from "next/image";
 import Link from "next/link";
 import { useRouter } from "next/router";
@@ -10,24 +9,17 @@ import {
 	AiOutlineLink,
 	AiOutlineTwitter,
 } from "react-icons/ai";
-import Modal from "react-responsive-modal";
 import { HiOutlineLocationMarker, HiPhotograph } from "react-icons/hi";
-import { useInView } from "react-intersection-observer";
-import { FaChevronLeft, FaChevronRight } from "react-icons/fa";
 import { BiWorld } from "react-icons/bi";
-import { IoMdClose } from "react-icons/io";
 import { useInfiniteQuery } from "react-query";
 
 import { UserDetailType } from "@/types/user";
 
 import { Popover } from "@/ui/Popover";
 import { PhotoType } from "@/types/photos";
-import { useDisclosure } from "@/hooks";
 
-import { ImageButton } from "@/components/ImageButton";
-import { PhotoDetail } from "@/components/PhotoDetail";
-import { RelatedPhotos } from "@/components/RelatedPhotos";
-import { Button, Divider } from "@/ui";
+import { Divider } from "@/ui";
+import { MasonryImages } from "@/components/MasonryImages";
 
 interface ProfilePageProps {
 	userDetails: UserDetailType;
@@ -42,14 +34,8 @@ export default function ProfilePage({
 	userDetails,
 	userPhotosInitial,
 }: ProfilePageProps) {
-	const { ref, inView } = useInView();
-
 	const router = useRouter();
-	const { isOpen, close, open } = useDisclosure();
 	const [latestId, setLatestId] = React.useState<string[]>([]);
-	const [currentPhoto, setCurrentPhoto] = React.useState<PhotoType | null>(
-		null
-	);
 	const username = (router.query.user as string).replace("@", "");
 
 	const {
@@ -101,21 +87,29 @@ export default function ProfilePage({
 		}
 	);
 
-	const handleFetchPage = () => hasNextPage && fetchNextPage();
+	const modalClose = () => {
+		router.replace(`/u/${router.query.user}`, `/u/${router.query.user}`, {
+			shallow: true,
+		});
+	};
 
-	useEffect(() => {
-		if (inView) {
-			handleFetchPage();
-		}
-	}, [inView]);
+	const handleImageClick = (id: string) => {
+		router.push(
+			{
+				pathname: `/u/[user]`,
+				query: {
+					user: router.query.user,
+				},
+			},
+			`/photos/${id}`,
+			{
+				shallow: true,
+			}
+		);
+	};
 
 	return (
 		<>
-			<Head>
-				<title>
-					{`${userDetails.name} (@${userDetails.username}) • Desplash Community`}
-				</title>
-			</Head>
 			<section className="mt-12 px-5 pb-5 mx-auto max-w-2xl flex flex-col md:flex-row items-center  md:items-start gap-4">
 				<Image
 					className="rounded-full"
@@ -214,155 +208,18 @@ export default function ProfilePage({
 				</button>
 				<Divider className="absolute w-full bottom-0" />
 			</section>
-			<section className="my-10 mx-auto max-w-6xl masonry-col-2 lg:masonry-col-3 masonry-gap-3 transition-default">
-				{status === "loading" ? (
-					<p>Loading...</p>
-				) : status === "error" ? (
-					<span>Error: {error.message} </span>
-				) : status === "success" && !!photos.pages.length ? (
-					<>
-						{photos.pages.map((page) => (
-							<React.Fragment key={`${page.nextId}-?${page.prevId}`}>
-								{page.photos.map((data, i) => (
-									<ImageButton
-										key={data.id}
-										className="break-inside-avoid"
-										data={data}
-										onClick={() => {
-											setCurrentPhoto({
-												...data,
-												index: i,
-											});
-											router.push(
-												{
-													pathname: `/u/[user]`,
-													query: {
-														user: router.query.user,
-													},
-												},
-												`/photos/${data.id}`,
-												{
-													shallow: true,
-												}
-											);
-											open();
-										}}
-									/>
-								))}
-							</React.Fragment>
-						))}
-						<Modal
-							classNames={{
-								modal:
-									"!my-10 md:!my-5 !mx-0 lg:!mx-5 !p-0 relative overflow-x-hidden !overflow-y-auto !w-screen md:!max-w-3xl lg:!max-w-5xl xl:!max-w-[calc(100%-10rem)] rounded-md",
-								closeButton: "hidden",
-								closeIcon: "hidden",
-							}}
-							center
-							open={isOpen}
-							onClose={() => {
-								setCurrentPhoto(null);
-								router.replace(
-									`/u/${router.query.user}`,
-									`/u/${router.query.user}`,
-									{
-										shallow: true,
-									}
-								);
-								close();
-							}}>
-							{currentPhoto && (
-								<>
-									<IoMdClose
-										className="fixed top-2 left-2 text-white/80 hover:text-white transition-default cursor-pointer"
-										onClick={close}
-										size={25}
-									/>
-
-									<PhotoDetail
-										id={currentPhoto.id}
-										placeholderData={{
-											...currentPhoto,
-											views: null,
-											downloads: null,
-											topics: [],
-											location: {},
-											exif: {},
-											tags: [],
-										}}>
-										<RelatedPhotos
-											id={currentPhoto.id}
-											onPhotoClick={(photo) => {
-												router.push(
-													{
-														pathname: `/u/[user]`,
-														query: {
-															user: router.query.user,
-														},
-													},
-													`/photos/${currentPhoto.id}`,
-													{
-														shallow: true,
-													}
-												);
-												setCurrentPhoto(photo);
-											}}
-										/>
-									</PhotoDetail>
-									<button
-										type="button"
-										className="hidden md:block fixed top-1/2 left-7 text-white/80 hover:text-white disabled:text-white/60"
-										onClick={() => {
-											const photoArr = photos.pages.flatMap(
-												(page) => page.photos
-											)[currentPhoto.index - 1];
-											setCurrentPhoto({
-												...photoArr,
-												index: currentPhoto.index - 1,
-											});
-										}}
-										disabled={currentPhoto.index === 0}>
-										<FaChevronLeft
-											className="text-inherit  transition-default"
-											size={30}
-										/>
-									</button>
-									<button
-										type="button"
-										className="hidden md:block fixed top-1/2 right-7 text-white/80 hover:text-white disabled:text-white/60"
-										onClick={() => {
-											const photoArr = photos.pages.flatMap(
-												(page) => page.photos
-											)[currentPhoto.index + 1];
-											setCurrentPhoto({
-												...photoArr,
-												index: currentPhoto.index + 1,
-											});
-											console.log(photoArr);
-										}}>
-										<FaChevronRight
-											className="text-inherit transition-default"
-											size={30}
-										/>
-									</button>
-								</>
-							)}
-						</Modal>
-					</>
-				) : (
-					<div className="h-screen">No Data</div>
-				)}
-			</section>
-			{status === "success" && hasNextPage && (
-				<div ref={ref}>
-					<Button
-						className="mx-auto my-5"
-						onClick={handleFetchPage}
-						loading={isFetchingNextPage}>
-						Load More
-					</Button>
-				</div>
-			)}
+			<MasonryImages
+				className="my-10"
+				error={error}
+				fetchNextPage={fetchNextPage}
+				hasNextPage={hasNextPage}
+				isFetchingNextPage={isFetchingNextPage}
+				photos={photos}
+				status={status}
+				onModalClose={modalClose}
+				onImageClick={handleImageClick}
+				headTitle={`${userDetails.name} (@${userDetails.username}) • Desplash Community`}
+			/>
 		</>
 	);
 }
