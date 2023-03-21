@@ -40,10 +40,11 @@ export function RegisterForm() {
 				}
 			},
 		});
+
 	return (
 		<form
 			onSubmit={handleSubmit}
-			className="mx-auto max-w-2xl h-full flex gap-7 flex-col justify-center">
+			className="p-5 mx-auto max-w-2xl h-full flex gap-7 flex-col justify-center">
 			<div className="flex flex-col gap-2 items-center">
 				<h1 className="font-bold text-center text-5xl">Join Desplash</h1>
 				<p className="text-md text-center">

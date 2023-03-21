@@ -29,7 +29,13 @@ export function MainLayout({
 	const [loginModal, setLoginModal] = useAtom(loginModalAtom);
 
 	return (
-		<main>
+		<main
+			style={{
+				contain:
+					router.pathname === "/login" || router.pathname === "/join"
+						? "initial"
+						: "paint",
+			}}>
 			{!privateRoutes.includes(router.pathname) && <Navbar />}
 			{children}
 			{!privateRoutes.includes(router.pathname) && <Footer />}

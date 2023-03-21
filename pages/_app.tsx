@@ -8,19 +8,18 @@ import { QueryClient, QueryClientProvider } from "react-query";
 import { MainLayout } from "@/layouts";
 import { createStore, Provider } from "jotai";
 
-export default function App({ Component, pageProps }: AppProps) {
-	const queryClient = new QueryClient({
-		defaultOptions: {
-			queries: {
-				refetchOnWindowFocus: false,
-				refetchOnMount: false,
-				refetchOnReconnect: false,
-				retry: false,
-				retryOnMount: false,
-			},
+export const queryClient = new QueryClient({
+	defaultOptions: {
+		queries: {
+			refetchOnWindowFocus: false,
+			refetchOnMount: false,
+			refetchOnReconnect: false,
+			retry: false,
+			retryOnMount: false,
 		},
-	});
-
+	},
+});
+export default function App({ Component, pageProps }: AppProps) {
 	return (
 		<>
 			<Head>

@@ -74,7 +74,7 @@ export default function Home({ randomPhoto }: { randomPhoto: PhotoType }) {
 
 	return (
 		<>
-			<section className="relative grid gap-5 place-content-center  w-screen h-[700px] bg-blend-darken overflow-hidden">
+			<section className="px-4 relative grid gap-5 place-content-center  w-screen h-[700px] bg-blend-darken overflow-hidden">
 				<Image
 					src={randomPhoto.urls.full}
 					fill
@@ -99,7 +99,7 @@ export default function Home({ randomPhoto }: { randomPhoto: PhotoType }) {
 					}}
 					className="flex-1"
 					icon={<AiOutlineSearch size={20} className="text-gray-500 " />}
-					inputClass="w-[900px] py-3 text-primary-main placeholder:text-gray-500 text-main bg-white border-transparent focus:ring-4 focus:ring-2 focus:ring-main focus:ring-opacity-50"
+					inputClass="md:w-[500px] lg:w-[700px] xl:w-[1000px] py-3 text-primary-main placeholder:text-gray-500 text-main bg-white border-transparent focus:ring-4 focus:ring-2 focus:ring-main focus:ring-opacity-50"
 					placeholder="Search your desired photos"
 					type="text"
 					name="search"
@@ -114,6 +114,7 @@ export default function Home({ randomPhoto }: { randomPhoto: PhotoType }) {
 				</p>
 			</section>
 			<MasonryImages
+				className="my-10"
 				error={error}
 				fetchNextPage={fetchNextPage}
 				hasNextPage={hasNextPage}

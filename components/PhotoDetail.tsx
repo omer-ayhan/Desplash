@@ -1,4 +1,4 @@
-import { MouseEvent, useState } from "react";
+import { MouseEvent, useEffect, useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { FiCamera } from "react-icons/fi";
@@ -22,6 +22,7 @@ import { useDisclosure } from "@/hooks";
 import { cn, downloadFile } from "@/services/local";
 import { loginModalAtom, userAtom } from "@/services/local/store";
 import { favoritesTable } from "@/services/local/db.config";
+import { queryClient } from "@/pages/_app";
 
 import { Button, Divider, Popover } from "@/ui";
 import { NextImage } from "./NextImage";
@@ -43,6 +44,7 @@ export function PhotoDetail({
 }: PhotoDetailProps) {
 	const { isOpen: isZoom, toggle } = useDisclosure();
 	const [isCopied, setIsCopied] = useState(false);
+	const [isLiked, setIsLiked] = useState(false);
 
 	const currUser = useAtomValue(userAtom);
 	const setModal = useSetAtom(loginModalAtom);
@@ -72,6 +74,7 @@ export function PhotoDetail({
 
 			if (favExists) {
 				await favoritesTable.delete(favExists.id);
+				setIsLiked(false);
 				return;
 			}
 
@@ -81,9 +84,14 @@ export function PhotoDetail({
 				uid: currUser.uid,
 			});
 
+			setIsLiked(true);
+
 			console.log(favRes);
 		} catch (error) {
 			console.log(error);
+		} finally {
+			queryClient.clear();
+			queryClient.invalidateQueries("favorites");
 		}
 	};
 
@@ -104,6 +112,7 @@ export function PhotoDetail({
 		downloads,
 		views,
 		tags,
+		id: imageId,
 	} = resData;
 
 	const publishDate = new Intl.DateTimeFormat("en-US", {
@@ -117,6 +126,26 @@ export function PhotoDetail({
 		setIsCopied(true);
 		setTimeout(() => setIsCopied(false), 400);
 	};
+
+	const checkLiked = async () => {
+		try {
+			if (!currUser?.uid) {
+				setIsLiked(false);
+				return;
+			}
+			const liked = await favoritesTable.get({
+				id: imageId,
+			});
+
+			setIsLiked(!!liked?.id);
+		} catch (error) {
+			setIsLiked(false);
+		}
+	};
+
+	useEffect(() => {
+		checkLiked();
+	}, []);
 
 	return (
 		<>
@@ -148,7 +177,12 @@ export function PhotoDetail({
 				<div className="w-full flex gap-2 items-center justify-between md:justify-end">
 					<Button
 						onClick={handleLike}
-						className="px-2 py-2 text-xl text-primary-secondary hover:text-primary-main bg-white transition-default rounded-md cursor-pointer"
+						className={cn(
+							"px-2 py-2 text-xl rounded-md cursor-pointer transition-default",
+							isLiked
+								? "bg-red-500 text-white border-none hover:text-white"
+								: "text-primary-secondary bg-white hover:text-primary-main"
+						)}
 						title="Add To Favorites">
 						<AiFillHeart />
 					</Button>
