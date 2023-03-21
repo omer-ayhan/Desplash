@@ -18,7 +18,7 @@ export default function Join({ randomPhoto }: { randomPhoto: PhotoType }) {
 	);
 
 	return (
-		<div className="overflow-hidden h-screen grid grid-cols-1 lg:grid-cols-[minmax(0,0.7fr)_minmax(0,1fr)]">
+		<div className="h-screen grid grid-cols-1 lg:grid-cols-[minmax(0,0.7fr)_minmax(0,1fr)]">
 			<section className="relative ">
 				<Image
 					src={randomPhoto.urls.full}
@@ -29,14 +29,14 @@ export default function Join({ randomPhoto }: { randomPhoto: PhotoType }) {
 
 				<div className="absolute top-0 left-0 w-full h-full bg-black/40 -z-10" />
 
-				<div className="p-4 lg:p-10 h-full flex flex-col justify-between">
+				<div className="p-4 lg:p-10 h-full flex gap-2 flex-col justify-between">
 					<h1 className="text-3xl font-bold text-white">Desplash</h1>
 
 					<div>
 						<h1 className="text-white text-4xl lg:text-5xl font-semibold">
 							Creation starts here
 						</h1>
-						<p className="my-3 text-white text-xl lg:text-2xl">
+						<p className="my-4 text-white text-xl lg:text-2xl">
 							Access 4,922,719 free, high-resolution photos you can’t find
 							anywhere else
 						</p>

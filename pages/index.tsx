@@ -114,6 +114,7 @@ export default function Home({ randomPhoto }: { randomPhoto: PhotoType }) {
 				</p>
 			</section>
 			<MasonryImages
+				className="my-10"
 				error={error}
 				fetchNextPage={fetchNextPage}
 				hasNextPage={hasNextPage}

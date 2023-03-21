@@ -2,9 +2,9 @@
 @tailwind components;
 @tailwind utilities;
 
-#__next {
+/* #__next {
 	contain: paint;
-}
+} */
 
 .tooltip {
 	position: relative;

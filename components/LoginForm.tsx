@@ -1,7 +1,7 @@
 import Link from "next/link";
 import { useRouter } from "next/router";
 import { FormikHelpers, useFormik } from "formik";
-import { useAtom, useSetAtom } from "jotai";
+import { useSetAtom } from "jotai";
 
 import { userTable } from "@/services/local/db.config";
 import { userAtom } from "@/services/local/store";
@@ -52,7 +52,7 @@ export function LoginForm({ className }: { className?: string }) {
 		<form
 			onSubmit={handleSubmit}
 			className={cn(
-				"mx-auto max-w-md h-full flex gap-7 flex-col justify-center",
+				"px-5 mx-auto max-w-md h-full flex gap-7 flex-col justify-center",
 				className
 			)}>
 			<div className="flex flex-col gap-2 items-center">
