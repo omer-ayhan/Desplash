@@ -1,14 +1,22 @@
 import React from "react";
 import { useRouter } from "next/router";
+import dynamic from "next/dynamic";
+import Image from "next/image";
 import Modal from "react-responsive-modal";
+import { useAtom, useAtomValue } from "jotai";
 
 import { privateRoutes } from "@/constants";
+import { loginModalAtom, userAtom } from "@/services/local/store";
 
 import { Footer } from "@/components/Footer";
-import { Navbar } from "@/components/Navbar";
-import { useMainStore } from "@/services/local/store";
 import { LoginForm } from "@/components/LoginForm";
-import Image from "next/image";
+
+const Navbar = dynamic(
+	() => import("../components/Navbar").then((mod) => mod.Navbar),
+	{
+		ssr: false,
+	}
+);
 
 export function MainLayout({
 	children,
@@ -16,11 +24,9 @@ export function MainLayout({
 	children: React.ReactNode;
 }): JSX.Element {
 	const router = useRouter();
-	const { user, loginModal, setLoginModal } = useMainStore((state) => ({
-		user: state.user,
-		loginModal: state.loginModal,
-		setLoginModal: state.setLoginModal,
-	}));
+
+	const user = useAtomValue(userAtom);
+	const [loginModal, setLoginModal] = useAtom(loginModalAtom);
 
 	return (
 		<main>
@@ -39,6 +45,7 @@ export function MainLayout({
 					onClose={() =>
 						setLoginModal({
 							isOpen: false,
+							img: "",
 						})
 					}>
 					<div className="grid grid-cols-[300px_minmax(0,1fr)]">

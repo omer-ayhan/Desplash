@@ -2,10 +2,11 @@ import Image from "next/image";
 import Link from "next/link";
 import { AiFillHeart } from "react-icons/ai";
 import { FiArrowDown } from "react-icons/fi";
+import { useAtomValue, useSetAtom } from "jotai";
 
 import { cn, downloadFile } from "@/services/local";
 import { PhotoType } from "@/types/photos";
-import { useMainStore } from "@/services/local/store";
+import { loginModalAtom, userAtom } from "@/services/local/store";
 import { favoritesTable } from "@/services/local/db.config";
 
 interface ImageButtonProps {
@@ -23,10 +24,14 @@ export function ImageButton({
 	onClick,
 }: ImageButtonProps) {
 	const { id, urls, alt_description, user, premium } = data;
-	const { currUser, setModal } = useMainStore((store) => ({
-		currUser: store.user,
-		setModal: store.setLoginModal,
-	}));
+	// const { currUser, setModal } = useMainStore((store) => ({
+	// 	currUser: store.user,
+	// 	setModal: store.setLoginModal,
+	// }));
+
+	const currUser = useAtomValue(userAtom);
+
+	const setModal = useSetAtom(loginModalAtom);
 
 	const handleLike = async () => {
 		try {

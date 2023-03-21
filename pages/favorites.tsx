@@ -1,19 +1,20 @@
+import { favoritesTable } from "@/services/local/db.config";
+import { userAtom } from "@/services/local/store";
+import { useAtom, useAtomValue } from "jotai";
 import Head from "next/head";
+import { useQuery } from "react-query";
 
 export default function Favorites() {
-	// const { data, refetch, error } = useQuery(
-	// 	"favorites",
-	// 	async () => {
-	// 		return;
-	// 		// const db = await favoritesTable
-	// 		// 	.where("uid")
-	// 		// 	.equals(currUser?.uid)
-	// 		// 	.toArray();
+	const user = useAtomValue(userAtom);
+	const { data, refetch, error } = useQuery(
+		"favorites",
+		async () => {
+			const db = await favoritesTable.where("uid").equals(user?.uid).toArray();
 
-	// 		// return db;
-	// 	},
-	// 	{}
-	// );
+			return db;
+		},
+		{}
+	);
 
 	return (
 		<>

@@ -15,15 +15,16 @@ import {
 	FaPinterest,
 	FaTwitter,
 } from "react-icons/fa";
+import { useAtomValue, useSetAtom } from "jotai";
 
 import { PhotoDetailType, PhotoType } from "@/types/photos";
 import { useDisclosure } from "@/hooks";
 import { cn, downloadFile } from "@/services/local";
+import { loginModalAtom, userAtom } from "@/services/local/store";
+import { favoritesTable } from "@/services/local/db.config";
 
 import { Button, Divider, Popover } from "@/ui";
 import { NextImage } from "./NextImage";
-import { useMainStore } from "@/services/local/store";
-import { favoritesTable } from "@/services/local/db.config";
 
 interface PhotoDetailProps {
 	id: string;
@@ -42,10 +43,9 @@ export function PhotoDetail({
 }: PhotoDetailProps) {
 	const { isOpen: isZoom, toggle } = useDisclosure();
 	const [isCopied, setIsCopied] = useState(false);
-	const { currUser, setModal } = useMainStore((store) => ({
-		currUser: store.user,
-		setModal: store.setLoginModal,
-	}));
+
+	const currUser = useAtomValue(userAtom);
+	const setModal = useSetAtom(loginModalAtom);
 
 	const { data, isLoading } = useQuery<PhotoDetailType>(
 		`photo-detail-${id}`,
