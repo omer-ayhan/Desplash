@@ -6,6 +6,7 @@ import { FiArrowDown } from "react-icons/fi";
 import { cn, downloadFile } from "@/services/local";
 import { PhotoType } from "@/types/photos";
 import { useMainStore } from "@/services/local/store";
+import { favoritesTable } from "@/services/local/db.config";
 
 interface ImageButtonProps {
 	data: PhotoType;
@@ -27,14 +28,33 @@ export function ImageButton({
 		setModal: store.setLoginModal,
 	}));
 
-	const handleLike = () => {
-		if (!currUser?.uid) {
-			setModal({
-				isOpen: true,
-				img: urls.regular,
+	const handleLike = async () => {
+		try {
+			if (!currUser?.uid) {
+				setModal({
+					isOpen: true,
+					img: urls.regular,
+				});
+
+				throw new Error("You must be logged in to like a photo");
+			}
+			const favExists = await favoritesTable.get({
+				id: data.id,
 			});
-		} else {
-			console.log("liked");
+
+			if (favExists) {
+				await favoritesTable.delete(favExists.id);
+				return;
+			}
+
+			const favRes = await favoritesTable.add({
+				...data,
+				uid: currUser.uid,
+			});
+
+			console.log(favRes);
+		} catch (error) {
+			console.log(error);
 		}
 	};
 

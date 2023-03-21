@@ -16,13 +16,14 @@ import {
 	FaTwitter,
 } from "react-icons/fa";
 
-import { PhotoDetailType } from "@/types/photos";
+import { PhotoDetailType, PhotoType } from "@/types/photos";
 import { useDisclosure } from "@/hooks";
 import { cn, downloadFile } from "@/services/local";
 
 import { Button, Divider, Popover } from "@/ui";
 import { NextImage } from "./NextImage";
 import { useMainStore } from "@/services/local/store";
+import { favoritesTable } from "@/services/local/db.config";
 
 interface PhotoDetailProps {
 	id: string;
@@ -55,14 +56,34 @@ export function PhotoDetail({
 		}
 	);
 
-	const handleLike = () => {
-		if (!currUser?.uid) {
-			setModal({
-				isOpen: true,
-				img: urls.regular,
+	const handleLike = async () => {
+		try {
+			if (!currUser?.uid) {
+				setModal({
+					isOpen: true,
+					img: urls.regular,
+				});
+
+				throw new Error("You must be logged in to like a photo");
+			}
+			const favExists = await favoritesTable.get({
+				id: placeholderData.id,
 			});
-		} else {
-			console.log("liked");
+
+			if (favExists) {
+				await favoritesTable.delete(favExists.id);
+				return;
+			}
+
+			const data = placeholderData as unknown as PhotoType;
+			const favRes = await favoritesTable.add({
+				...data,
+				uid: currUser.uid,
+			});
+
+			console.log(favRes);
+		} catch (error) {
+			console.log(error);
 		}
 	};
 
