@@ -2,6 +2,8 @@ import Link from "next/link";
 import { useRouter } from "next/router";
 import { FormikHelpers, useFormik } from "formik";
 import { useSetAtom } from "jotai";
+import { toast } from "react-toastify";
+import { DexieError } from "dexie";
 
 import { userTable } from "@/services/local/db.config";
 import { userAtom } from "@/services/local/store";
@@ -23,7 +25,11 @@ export function LoginForm({ className }: { className?: string }) {
 		try {
 			const user = await userTable.get(values);
 
-			if (!user) throw new Error("User not found");
+			if (!user)
+				throw {
+					message: "User not found",
+				};
+
 			setUser({
 				email: user.email,
 				username: user.username,
@@ -33,9 +39,11 @@ export function LoginForm({ className }: { className?: string }) {
 			});
 			localStorage.setItem("user", JSON.stringify(user));
 			resetForm();
+			toast.success("Login successful");
 			router.push("/");
 		} catch (error) {
-			console.log(error);
+			const err = error as DexieError;
+			toast.error(err?.message);
 		} finally {
 			setSubmitting(false);
 		}

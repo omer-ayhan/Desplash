@@ -16,6 +16,8 @@ import {
 	FaTwitter,
 } from "react-icons/fa";
 import { useAtomValue, useSetAtom } from "jotai";
+import { DexieError } from "dexie";
+import { toast } from "react-toastify";
 
 import { PhotoDetailType, PhotoType } from "@/types/photos";
 import { useDisclosure } from "@/hooks";
@@ -66,7 +68,7 @@ export function PhotoDetail({
 					img: urls.regular,
 				});
 
-				throw new Error("You must be logged in to like a photo");
+				throw { message: "You must be logged in to like a photo" };
 			}
 			const favExists = await favoritesTable.get({
 				id: placeholderData.id,
@@ -88,7 +90,8 @@ export function PhotoDetail({
 
 			console.log(favRes);
 		} catch (error) {
-			console.log(error);
+			const err = error as DexieError;
+			toast.error(err.message);
 		} finally {
 			queryClient.clear();
 			queryClient.invalidateQueries("favorites");
@@ -139,7 +142,9 @@ export function PhotoDetail({
 
 			setIsLiked(!!liked?.id);
 		} catch (error) {
+			const err = error as DexieError;
 			setIsLiked(false);
+			toast.error(err.message);
 		}
 	};
 

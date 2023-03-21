@@ -1,11 +1,13 @@
 import { useFormik } from "formik";
 import Link from "next/link";
+import { nanoid } from "nanoid";
+import { DexieError } from "dexie";
+import { toast } from "react-toastify";
 
 import { registerModel } from "@/services/local/yupModels";
 import { userTable } from "@/services/local/db.config";
 
 import { Button, Input } from "@/ui";
-import { nanoid } from "nanoid";
 
 export function RegisterForm() {
 	const { getFieldProps, handleSubmit, errors, touched, isSubmitting } =
@@ -22,19 +24,21 @@ export function RegisterForm() {
 						username: values.username,
 					});
 					if (emailExists)
-						throw new Error("User with this email already exists");
+						throw { message: "User with this email already exists" };
 					if (userNameExists)
-						throw new Error("User with this username already exists");
+						throw { message: "User with this username already exists" };
 
 					const id = await userTable.add({
 						...values,
 						uid: nanoid(),
 					});
 
-					console.info(`A new user has been added with id: ${id}`);
 					resetForm();
+					toast.success("User created successfully! Now you can login");
 				} catch (error) {
-					console.error(error);
+					const err = error as DexieError;
+
+					toast.error(err?.message);
 				} finally {
 					setSubmitting(false);
 				}

@@ -10,6 +10,7 @@ import { PhotoType } from "@/types/photos";
 
 import { MasonryImages } from "@/components/MasonryImages";
 import { Input } from "@/ui";
+import { toast } from "react-toastify";
 
 export default function Home({ randomPhoto }: { randomPhoto: PhotoType }) {
 	const router = useRouter();
@@ -74,6 +75,12 @@ export default function Home({ randomPhoto }: { randomPhoto: PhotoType }) {
 
 	return (
 		<>
+			<button
+				onClick={() => {
+					toast.success("Hello world!");
+				}}>
+				Toaster
+			</button>
 			<section className="px-4 relative grid gap-5 place-content-center  w-screen h-[700px] bg-blend-darken overflow-hidden">
 				<Image
 					src={randomPhoto.urls.full}
