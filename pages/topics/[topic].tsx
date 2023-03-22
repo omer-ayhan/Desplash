@@ -126,6 +126,7 @@ export default function Home({ initialValue }: HomePageProps) {
 					fill
 					className="-z-50 object-cover"
 					alt={initialValue.heroValue.cover_photo.alt_description}
+					priority
 				/>
 				<div className="-z-40 absolute w-full h-full bg-primary-main/30" />
 
