@@ -11,8 +11,8 @@ export default function NotFound({ randomPhoto }: { randomPhoto: PhotoType }) {
 		<section className="relative w-screen h-screen grid place-content-center">
 			<div className="bg-primary-main/90 absolute w-full h-full top-0 left-0 -z-30" />
 			<div className="flex flex-col items-center">
-				<div className="flex gap-3">
-					<ul className="flex text-7xl font-bold text-white">
+				<div className="flex flex-wrap justify-center gap-3">
+					<ul className="flex text-6xl lg:text-7xl font-bold text-white">
 						<li className="animate-blink text-inherit text-shadow-1">P</li>
 						<li className="animate-blink text-inherit text-shadow-1">a</li>
 						<li className="animate-blink text-inherit text-shadow-1">g</li>
@@ -20,12 +20,12 @@ export default function NotFound({ randomPhoto }: { randomPhoto: PhotoType }) {
 							e
 						</li>
 					</ul>
-					<ul className="flex text-7xl font-bold text-white">
+					<ul className="flex text-6xl lg:text-7xl font-bold text-white">
 						<li className="animate-blink text-inherit text-shadow-1">N</li>
 						<li className="animate-blink text-inherit text-shadow-1">o</li>
 						<li className="animate-blink text-inherit text-shadow-1">t</li>
 					</ul>
-					<ul className="flex text-7xl font-bold text-white">
+					<ul className="flex text-6xl lg:text-7xl font-bold text-white">
 						<li className="animate-blink text-inherit text-shadow-1">F</li>
 						<li className="animate-blink text-inherit text-shadow-1">o</li>
 						<li className="animate-slow-blink text-inherit text-shadow-1">u</li>
@@ -33,7 +33,7 @@ export default function NotFound({ randomPhoto }: { randomPhoto: PhotoType }) {
 						<li className="animate-blink text-inherit text-shadow-1">d</li>
 					</ul>
 				</div>
-				<p className="mb-5 text-white">
+				<p className="my-5 text-white text-center">
 					Hmm, the page you were looking for doesn’t seem to exist anymore.
 				</p>
 				<Link href="/">
