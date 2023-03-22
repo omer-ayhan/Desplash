@@ -43,7 +43,7 @@ export function MainLayout({
 				<Modal
 					classNames={{
 						modal:
-							"!p-0 relative overflow-x-hidden !overflow-y-auto !w-screen md:!max-w-3xl lg:!max-w-4xl rounded-md",
+							"!m-0 md:!m-3 !p-0 relative overflow-x-hidden !overflow-y-auto !w-screen !max-w-md sm:!max-w-lg md:!max-w-3xl lg:!max-w-4xl rounded-md",
 						closeButton: "hidden",
 						closeIcon: "hidden",
 					}}
@@ -54,14 +54,15 @@ export function MainLayout({
 							img: "",
 						})
 					}>
-					<div className="grid grid-cols-[300px_minmax(0,1fr)]">
-						<div className="relative">
+					<div className="grid grid-cols-1 lg:grid-cols-[300px_minmax(0,1fr)]">
+						<div className="relative hidden lg:block">
 							{loginModal.img ? (
 								<Image
 									src={loginModal.img}
 									fill
 									alt="Login to like"
 									className="object-cover"
+									priority
 								/>
 							) : (
 								<div className=" bg-primary-secondary w-full h-full"></div>

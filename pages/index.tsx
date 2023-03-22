@@ -80,6 +80,7 @@ export default function Home({ randomPhoto }: { randomPhoto: PhotoType }) {
 					fill
 					className="-z-50 object-cover"
 					alt={randomPhoto.alt_description}
+					priority
 				/>
 				<div className="-z-40 absolute w-full h-full bg-primary-main/30" />
 
@@ -102,7 +103,7 @@ export default function Home({ randomPhoto }: { randomPhoto: PhotoType }) {
 					inputClass="md:w-[500px] lg:w-[700px] xl:w-[1000px] py-3 text-primary-main placeholder:text-gray-500 text-main bg-white border-transparent focus:ring-4 focus:ring-2 focus:ring-main focus:ring-opacity-50"
 					placeholder="Search your desired photos"
 					type="text"
-					name="search"
+					name="search-home"
 				/>
 				<p className="absolute bottom-5 left-5 text-sm text-white/80">
 					Photo by{" "}

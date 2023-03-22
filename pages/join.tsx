@@ -25,6 +25,7 @@ export default function Join({ randomPhoto }: { randomPhoto: PhotoType }) {
 					fill
 					alt={randomPhoto.alt_description}
 					className="object-cover -z-20"
+					priority
 				/>
 
 				<div className="absolute top-0 left-0 w-full h-full bg-black/40 -z-10" />

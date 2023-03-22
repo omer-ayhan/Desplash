@@ -168,6 +168,7 @@ export function PhotoDetail({
 						height={33}
 						alt={user.name}
 						className="rounded-full"
+						priority
 					/>
 
 					<div className="text-white/80 hover:text-white">
@@ -261,6 +262,7 @@ export function PhotoDetail({
 				placeholder="blur"
 				blurDataURL={`data:image/jpg;base64,${blur_hash}`}
 				alt={alt_description || user.name}
+				priority
 			/>
 
 			<div className="px-3 md:px-6 py-5 grid gap-5 grid-cols-1 md:grid-cols-[300px_minmax(0,1fr)_100px] lg:grid-cols-[300px_minmax(0,1fr)_300px]">

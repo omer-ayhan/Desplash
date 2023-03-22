@@ -58,6 +58,7 @@ export default function NotFound({ randomPhoto }: { randomPhoto: PhotoType }) {
 				fill
 				alt={randomPhoto.alt_description}
 				className="object-cover -z-50"
+				priority
 			/>
 		</section>
 	);
