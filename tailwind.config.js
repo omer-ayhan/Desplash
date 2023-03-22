@@ -29,6 +29,13 @@ module.exports = {
 			3: "3",
 			4: "4",
 		},
+		animation: {
+			"slow-blink":
+				"blink 10s linear infinite both, slowBlink 1.3s linear 1s infinite",
+			"transparent-opaque":
+				"blink 10s linear infinite both, transparentToOpaque 5ms ease-in-out 4s infinite alternate both",
+			blink: "blink 6s linear infinite both",
+		},
 	},
 	daisyui: {
 		themes: [
@@ -87,6 +94,27 @@ module.exports = {
 					}),
 				},
 				{ values: theme("gap") }
+			);
+
+			matchUtilities(
+				{
+					"text-shadow": (value) => ({
+						"text-shadow": value,
+					}),
+				},
+				{
+					values: {
+						1: "0 0 0.2em",
+						2: "0 0 0.4em",
+						2.5: "0 0 0.5em",
+						3: "0 0 0.6em",
+						3.5: "0 0 0.7em",
+						4: "0 0 0.8em",
+						4.5: "0 0 0.9em",
+						5: "0 0 1em",
+						6: "0 0 1.2em",
+					},
+				}
 			);
 
 			addUtilities({

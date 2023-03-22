@@ -5,6 +5,8 @@ import { AiFillHeart } from "react-icons/ai";
 import { FiArrowDown } from "react-icons/fi";
 import { FaChevronDown } from "react-icons/fa";
 import { useAtomValue, useSetAtom } from "jotai";
+import { toast } from "react-toastify";
+import { DexieError } from "dexie";
 
 import { cn, downloadFile } from "@/services/local";
 import { PhotoType } from "@/types/photos";
@@ -47,7 +49,10 @@ export function ImageButton({
 
 			SetIsLiked(!!liked?.id);
 		} catch (error) {
+			const err = error as DexieError;
 			SetIsLiked(false);
+
+			toast.error(err?.message);
 		}
 	};
 
@@ -63,7 +68,7 @@ export function ImageButton({
 					img: urls.regular,
 				});
 
-				throw new Error("You must be logged in to like a photo");
+				throw { message: "You must be logged in to like a photo" };
 			}
 			const favExists = await favoritesTable.get({
 				id: data.id,
@@ -84,7 +89,8 @@ export function ImageButton({
 
 			console.log(favRes);
 		} catch (error) {
-			console.log(error);
+			const err = error as DexieError;
+			toast.error(err?.message);
 		} finally {
 			queryClient.clear();
 			queryClient.invalidateQueries("favorites");

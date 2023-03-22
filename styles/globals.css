@@ -2,10 +2,6 @@
 @tailwind components;
 @tailwind utilities;
 
-/* #__next {
-	contain: paint;
-} */
-
 .tooltip {
 	position: relative;
 	display: inline-block;
@@ -44,4 +40,98 @@
 	border-width: 5px;
 	border-style: solid;
 	border-color: transparent transparent #fff transparent;
+}
+
+@keyframes blink {
+	0% {
+		filter: blur(1px);
+	}
+
+	40% {
+		filter: blur(1px);
+	}
+
+	42% {
+		filter: blur(0);
+	}
+
+	44% {
+		filter: blur(2px);
+	}
+
+	46% {
+		filter: blur(1px);
+	}
+
+	to {
+		filter: blur(1px);
+	}
+}
+
+@keyframes transparentToOpaque {
+	0% {
+		opacity: 0.8;
+	}
+
+	to {
+		opacity: 1;
+	}
+}
+
+@keyframes slowBlink {
+	0% {
+		opacity: 1;
+	}
+
+	10% {
+		opacity: 1;
+	}
+
+	10.1% {
+		opacity: 0;
+	}
+
+	11% {
+		opacity: 0;
+	}
+
+	11.1% {
+		opacity: 1;
+	}
+
+	12% {
+		opacity: 1;
+	}
+
+	12.1% {
+		opacity: 0;
+	}
+
+	13% {
+		opacity: 0;
+	}
+
+	13.1% {
+		opacity: 1;
+	}
+
+	70% {
+		opacity: 1;
+	}
+
+	71.9% {
+		opacity: 0;
+	}
+
+	72% {
+		opacity: 0;
+	}
+
+	72.1% {
+		opacity: 1;
+	}
+
+	to {
+		opacity: 1;
+	}
 }
